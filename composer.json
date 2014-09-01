@@ -1,0 +1,24 @@
+{
+    "name": "codeyellow/sync",
+    "type": "library",
+    "homepage": "http://www.codeyellow.nl",
+    "license": "MIT",
+    "support": {
+        "email": "stefan@codeyellow.nl",
+        "source": "https://bitbucket.org/codeyellow/queue/src",
+        "issues": "https://bitbucket.org/codeyellow/queue/issues"
+    },
+    "authors": [
+        {
+            "name": "Stefan Majoor",
+            "email": "stefan@codeyellow.nl"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "illuminate/database": "4.2"
+    },
+    "autoload": {
+        "psr-0": { "CodeYellow\\Sync\\": "src/" }
+    }
+}

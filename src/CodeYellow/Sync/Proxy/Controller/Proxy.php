@@ -1,9 +1,18 @@
 <?php
 namespace CodeYellow\Sync\Proxy\Controller;
-class Proxy
+trait Proxy
 {
+    /**
+     * Routes a request to the correct url
+     */
     public function sync($what)
     {
-        dd($what);
+        $config = \Config::get('packages/codeyellow/sync/config');
+
+        if (!isset($config['servers'][$what])) {
+            \App::abort(404);
+        }
+        $server = $config['servers'][$what];
+
     }
 }

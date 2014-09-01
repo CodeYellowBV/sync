@@ -1,5 +1,5 @@
 <?php
-namespace CodeYellow\Sync\Client\Model;
+namespace CodeYellow\Sync\Server\Model;
 class Request
 {
     const TYPE_NEW = 'new';
@@ -90,5 +90,33 @@ class Request
         $query->limit(min($this->limit, $limit));
         $this->result = new Result($query->get(), $count);
         return $this->result;
+    }
+
+    /**
+     * Getters
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    public function getLimit()
+    {
+        return $this->limit;
+    }
+
+    public function getBefore()
+    {
+        return $this->before;
+    }
+
+    public function getSince()
+    {
+        return $this->since;
+    }
+
+    public function getStartId()
+    {
+        return $this->startId;
     }
 }

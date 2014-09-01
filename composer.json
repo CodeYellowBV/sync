@@ -19,6 +19,7 @@
     },
     "autoload": {
         "classmap": [
+            "src/CodeYellow/Sync/Server/Model",
             "src/CodeYellow/Sync/Client/Model"
         ]
     }

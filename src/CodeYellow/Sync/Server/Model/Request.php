@@ -1,10 +1,9 @@
 <?php
 namespace CodeYellow\Sync\Server\Model;
-class Request
-{
-    const TYPE_NEW = 'new';
-    const TYPE_MODIFIED = 'modified';
+use CodeYellow\Sync\Type;
 
+class Request implements Type
+{
     private $type;
     private $limit;
     private $before;
@@ -120,3 +119,4 @@ class Request
         return $this->startId;
     }
 }
+

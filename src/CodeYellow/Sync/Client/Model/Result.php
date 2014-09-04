@@ -12,10 +12,9 @@ class Result implements \Iterator, Type{
     /**
      * Create a new result object
      *
-     * @param Request The request that is done
-     * @param string $json Json encoded answer
+     * @param Request $request The request that is done
      */
-    public function __construct(Request $request, $json)
+    public function __construct(Request $request)
     {
         $this->request = $request;
     }
@@ -39,8 +38,8 @@ class Result implements \Iterator, Type{
     {
         if ($this->valid()) {
             $data = $this->data[$this->currentId];
-            $this->currentId = $this->data->id;
-            $this->currentTime = $this->request->type == static::TYPE_NEW ? 'created_at' : 'updated_at';
+            $this->lastId = $this->data->id;
+            $this->lastTime = $this->request->getType() == static::TYPE_NEW ? 'created_at' : 'updated_at';
             return $data;
         } else {
             // Return null if the element does not exists. This is stupid, an exception should be thrown, but

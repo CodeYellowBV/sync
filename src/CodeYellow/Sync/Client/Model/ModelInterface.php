@@ -27,6 +27,7 @@ interface ModelInterface
     /**
      * Delete an existing item
      * @param int $id The id of the item to delete
+     * @return boolean Do we have to continue
      */
     public function deleteItem($id);
 }

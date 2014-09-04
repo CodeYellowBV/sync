@@ -12,6 +12,8 @@ class Request implements Type
     protected $since;
     protected $startId;
 
+    protected $result;
+
     /**
      * Construct a new request
      * @param array $options Array of the options to be set.
@@ -70,12 +72,26 @@ class Request implements Type
 
     public function doRequest(ModelInterface $model)
     {
+        $this->result = new Result(this);
+        foreach ($this->result as $item) {
+            // First check if an item exists
+            if ($model->itemExists($item['id'])) {
+                if (!$item['deleted']) {
+                    $model->deleteItem($item['id']);
+                } else  {
+                    $model->updateItem($item);
+                }
+            } else if (!$item['deleted']) {
+                $model->createItem($item);
+            }
 
+            // If the model is not exists, and the model needs to be deleted, do nothing
+        }
     }
 
     public function getData()
     {
-
+        // TODO, write this
     }
 
     /**
@@ -87,6 +103,11 @@ class Request implements Type
     {
         $this->time = $time;
         $this->startId = $id;
+    }
+
+    public function getType()
+    {
+        return $this->type;
     }
 
 }

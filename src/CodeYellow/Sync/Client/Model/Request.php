@@ -99,10 +99,14 @@ class Request implements Type
 
     public function getData()
     {
-        $json = $this->asJson();
-        $client = new \GuzzleHttp\Client();
-        $res = $client->post($this->url, ['body' => $json]);
-
+        try {
+            $json = $this->asJson();
+            $client = new \GuzzleHttp\Client();
+            $res = $client->post($this->url, ['body' => $json]);
+        } catch (\Exception $e) {
+            dd($this->url, $json);
+        }
+        
         return $res->json();
     }
 

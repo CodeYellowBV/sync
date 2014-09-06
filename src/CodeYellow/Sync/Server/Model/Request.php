@@ -82,6 +82,10 @@ class Request implements Type
             });
         });
 
+        // Order corretly
+        $query->orderBy($sortOn, 'ASC');
+        $query->orderBy('id', 'ASC');
+
         // Check if a limit is set, if not, set limit to given limit
         $count = $query->aggregate('count');
 

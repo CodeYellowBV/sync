@@ -104,9 +104,9 @@ class Request implements Type
             $client = new \GuzzleHttp\Client();
             $res = $client->post($this->url, ['body' => $json]);
         } catch (\Exception $e) {
-            dd($this->url, $json);
+            dd($e->getMessage(), $this->url, $json);
         }
-        
+
         return $res->json();
     }
 

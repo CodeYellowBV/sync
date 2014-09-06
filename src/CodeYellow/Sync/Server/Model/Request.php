@@ -82,12 +82,14 @@ class Request implements Type
             });
         });
 
-        // Order corretly
+        // Check if a limit is set, if not, set limit to given limit
+        $count = $query->aggregate('count');
+
+        // Order correctly
+        // must be done after aggregating
         $query->orderBy($sortOn, 'ASC');
         $query->orderBy('id', 'ASC');
 
-        // Check if a limit is set, if not, set limit to given limit
-        $count = $query->aggregate('count');
 
         $limit == null && $limit = $this->limit;
         $query->limit(min($this->limit, $limit));

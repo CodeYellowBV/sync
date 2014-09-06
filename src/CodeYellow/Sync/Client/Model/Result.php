@@ -23,11 +23,10 @@ class Result implements \Iterator, Type{
      * Adds another request to the result
      * @param string $json The request to be added
      */
-    public function addData($json) {
-        $result = json_decode($json);
-        $this->count += $result->count;
-        $this->remaining = $result->remaining;
-        $this->data = array_merge($this->data, $result->data);
+    private function addData($result) {
+        $this->count += $result['count'];
+        $this->remaining = $result['remaining'];
+        $this->data = array_merge($this->data, $result['data']);
     }
 
     /********* ITERATOR****************/
@@ -38,8 +37,8 @@ class Result implements \Iterator, Type{
     {
         if ($this->valid()) {
             $data = $this->data[$this->currentId];
-            $this->lastId = $this->data->id;
-            $this->lastTime = $this->request->getType() == static::TYPE_NEW ? 'created_at' : 'updated_at';
+            $this->lastId = $data['id'];
+            $this->lastTime = $data[$this->request->getType() == static::TYPE_NEW ? 'created_at' : 'updated_at'];
             return $data;
         } else {
             // Return null if the element does not exists. This is stupid, an exception should be thrown, but
@@ -72,11 +71,11 @@ class Result implements \Iterator, Type{
         }
 
         // If we have done a request, and no more items are remaining, it is not valid
-        if (isset($this->lastId) && $this->request->remaining == 0) {
+        if (isset($this->lastId) && $this->remaining == 0) {
             return false;
         }
 
-        $this->request->setFrom($this->currentTime, $this->currentId + 1);
+        $this->request->setFrom($this->lastTime, $this->lastId + 1);
         $this->addData($this->request->getData());
 
         // Check if this item is set now

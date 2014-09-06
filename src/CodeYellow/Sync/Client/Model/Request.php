@@ -79,16 +79,16 @@ class Request implements Type
      */
     public function fetchData(ModelInterface $model)
     {
-        $this->result = new Result(this);
+        $this->result = new Result($this);
         foreach ($this->result as $item) {
             // First check if an item exists
             if ($model->itemExists($item['id'])) {
-                if (!$item['deleted']) {
+                if (isset($item['deleted']) && $item['deleted']) {
                     $model->deleteItem($item['id']);
                 } else {
                     $model->updateItem($item);
                 }
-            } else if (!$item['deleted']) {
+            } else if (!isset($item['deleted']) || !$item['deleted']) {
                 $model->createItem($item);
             }
 
@@ -98,7 +98,11 @@ class Request implements Type
 
     public function getData()
     {
-        // TODO, write this
+        $json = $this->asJson();
+        $client = new \GuzzleHttp\Client();
+        $res = $client->post($this->url, ['body' => $json]);
+
+        return $res->json();
     }
 
     /**

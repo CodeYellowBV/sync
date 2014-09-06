@@ -23,7 +23,8 @@ class Result implements \Iterator, Type{
      * Adds another request to the result
      * @param string $json The request to be added
      */
-    private function addData($result) {
+    private function addData($result)
+    {
         $this->count += $result['count'];
         $this->remaining = $result['remaining'];
         $this->data = array_merge($this->data, $result['data']);

@@ -83,6 +83,7 @@ class Request implements Type
         foreach ($this->result as $item) {
             // First check if an item exists
             if ($model->itemExists($item['id'])) {
+
                 if (isset($item['deleted']) && $item['deleted']) {
                     $model->deleteItem($item['id']);
                 } else {
@@ -112,7 +113,7 @@ class Request implements Type
      */
     public function setFrom($time, $id)
     {
-        $this->time = $time;
+        $this->since = $time;
         $this->startId = $id;
     }
 

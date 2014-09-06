@@ -70,7 +70,11 @@ class Request implements Type
         return json_encode($this->asArray());
     }
 
-    public function doRequest(ModelInterface $model)
+    /**
+     * Fetch more data
+     * @param ModelInterface $model The model we have to call with data
+     */
+    public function fetchData(ModelInterface $model)
     {
         $this->result = new Result(this);
         foreach ($this->result as $item) {
@@ -78,7 +82,7 @@ class Request implements Type
             if ($model->itemExists($item['id'])) {
                 if (!$item['deleted']) {
                     $model->deleteItem($item['id']);
-                } else  {
+                } else {
                     $model->updateItem($item);
                 }
             } else if (!$item['deleted']) {

@@ -22,7 +22,8 @@
         "classmap": [
             "src/CodeYellow/Sync/Server/Model",
             "src/CodeYellow/Sync/Client/Model",
-            "src/CodeYellow/Sync/Proxy/Controller"
+            "src/CodeYellow/Sync/Proxy/Controller",
+            "src/CodeYellow/Sync"
         ]
     }
 }

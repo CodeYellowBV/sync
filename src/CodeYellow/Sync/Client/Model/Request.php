@@ -40,8 +40,11 @@ class Request implements Type
 
         switch ($name) {
             case 'type':
-                if (!in_array(static::TYPE_NEW, static::TYPE_MODIFIED)) {
-                    throw new Exception('Unexpected type ' . $val);
+                if (!in_array($val, [static::TYPE_NEW, static::TYPE_MODIFIED])) {
+                    throw new \Exception(
+                        'Unexpected type ' . $val .
+                        ' Chose between ' . static::TYPE_MODIFIED . ' or ' . static::TYPE_NEW
+                    );
                 }
             break;
         }

@@ -23,4 +23,14 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($request['since'], $req->getSince());
         $this->assertEquals($request['startId'], $req->getStartId());
     }
+
+    /**
+     * Tests if an exception is thrown when the json is malformed
+     * @expectedException CodeYellow\Sync\Exception\MalformedJsonException
+     */
+    public function testMalformedJsonException()
+    {
+
+        new Request("no json");
+    }
 }

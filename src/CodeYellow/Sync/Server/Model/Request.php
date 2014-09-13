@@ -1,6 +1,7 @@
 <?php
 namespace CodeYellow\Sync\Server\Model;
 use CodeYellow\Sync\Type;
+use CodeYellow\Sync\Exception;
 
 class Request implements Type
 {
@@ -31,12 +32,12 @@ class Request implements Type
         $request = json_decode($json);
         
         if ($request == null) {
-            throw new \Exception\Sync\MalformedJsonException();
+            throw new Exception\MalformedJsonException();
         }
 
         foreach (['limit', 'before', 'since', 'startId'] as $option) {
             if (!is_int($request->$option) && !is_null($request->$option)) {
-                throw new \Exception\Sync\UnexpectedTypeException($option . ' should be an integer');
+                throw new Exception\Sync\UnexpectedTypeException($option . ' should be an integer');
             }
         }
 

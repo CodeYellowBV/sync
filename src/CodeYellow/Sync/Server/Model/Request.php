@@ -30,20 +30,20 @@ class Request implements Type
     protected function readJson($json)
     {
         $request = json_decode($json);
-        
-        if ($request == null) {
+
+        if (is_null($request)) {
             throw new Exception\MalformedJsonException();
         }
 
         foreach (['limit', 'before', 'since', 'startId'] as $option) {
-            if (!is_int($request->$option) && !is_null($request->$option)) {
-                throw new Exception\Sync\UnexpectedTypeException($option . ' should be an integer');
+            if ((!is_null($request->$option) && !is_int($request->$option))) {
+                throw new Exception\WrongParameterException($option . ' should be an integer');
             }
         }
 
         // Read type
         if (!isset($request->type) || !in_array($request->type, [static::TYPE_NEW, static::TYPE_MODIFIED])) {
-            throw new \Exception\Sync\UnexpectedTypeException();
+            throw new Exception\WrongParameterException('Wrong type');
         }
 
         $this->type = $request->type;

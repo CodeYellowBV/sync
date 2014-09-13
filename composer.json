@@ -18,6 +18,9 @@
         "php": ">=5.3.3",
         "guzzlehttp/guzzle": "4.2.1"
     },
+    "require-dev": {
+        "illuminate/database": "4.2.*"
+    },
     "autoload": {
         "classmap": [
             "src/CodeYellow/Sync/Server/Model",

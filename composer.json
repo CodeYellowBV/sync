@@ -19,7 +19,8 @@
         "guzzlehttp/guzzle": "4.2.1"
     },
     "require-dev": {
-        "illuminate/database": "4.2.*"
+        "illuminate/database": "4.2.*",
+        "mockery/mockery": "0.9.2"
     },
     "autoload": {
         "classmap": [

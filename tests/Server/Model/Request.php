@@ -1,7 +1,15 @@
 <?php
 use CodeYellow\Sync\Server\Model\Request;
+use \Mockery as m;
 class RequestTest extends PHPUnit_Framework_TestCase
 {
+    static $database;
+
+    public function getQuery()
+    {
+        return m::mock('\Illuminate\Database\Query\Builder');
+    }
+    
     /**
      * Test if a normal request does not trigger any exceptions
      */
@@ -92,12 +100,55 @@ class RequestTest extends PHPUnit_Framework_TestCase
     {
         $request = [
             'type' => Request::TYPE_NEW,
-            'limit' => 100,
-            'before' => null,
+            'limit' => 0,
+            'before' => 0,
             'since' => 0,
             'startId' => 0
         ];
         $req = new Request(json_encode($request));
-        $req->doSync((new \Illuminate\Database\Query\Builder));
+
+        $req->doSync($this->getQuery(), 'test');
+    }
+
+    /**
+     * Test a normal request
+     */
+    public function testNormalRequest()
+    {
+        $count = 42;
+        $request = [
+            'type' => Request::TYPE_NEW,
+            'limit' => 10,
+            'before' => time() - 10,
+            'since' => time() - 40,
+            'startId' => 5
+        ];
+
+        $query = $this->getQuery();
+        $query->shouldReceive('where')->with('created_at', '<', $request['before']);
+        $query->shouldReceive('where')->with(m::on(function ($closure) use ($request) {
+            $query2 = $this->getQuery();
+            $query2->shouldReceive('where')->with('created_at', '>', $request['since']);
+            $query2->shouldReceive('orWhere')->with(m::on(function ($closure2) use ($request) {
+                $query3 = $this->getQuery();
+                $query3->shouldReceive('where')->with('created_at', '=', $request['since']);
+                $query3->shouldReceive('where')->with('id', '>=', $request['startId']);
+
+                $closure2($query3);
+                return true;
+            }));
+            $closure($query2);
+            return true;
+        }));
+        $query->shouldReceive('aggregate')->with('count')->andReturn($count);
+        $query->shouldReceive('orderBy')->with('created_at', 'ASC');
+        $query->shouldReceive('orderBy')->with('id', 'ASC');
+        $query->shouldReceive('limit')->with($request['limit']);
+
+        $query->shouldReceive('get')->andReturn(array('test'));
+
+        $req = new Request(json_encode($request));
+        $result = $req->doSync($query);
+        $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
     }
 }

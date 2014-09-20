@@ -63,7 +63,7 @@ class Request implements Type
     public function doSync(\Illuminate\Database\Query\Builder $query, $limit = null)
     {
         if (!is_int($limit) && !is_null($limit)) {
-            throw new InvalidArgumentException('SyncRequest::doSync limit must be an integer');
+            throw new \InvalidArgumentException('SyncRequest::doSync limit must be an integer');
         }
 
         // Check if we use created_at or updated at

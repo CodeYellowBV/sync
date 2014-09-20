@@ -75,13 +75,15 @@ class Request implements Type
 
         // Unsynced result are where
         // (time > now || (time == now && id >= startId))
-        $query->where(function ($query) use ($sortOn) {
-            $query->where($sortOn, '>', $this->since);
-            $query->orWhere(function ($query) use ($sortOn) {
-                $query->where($sortOn, '=', $this->since);
-                $query->where('id', '>=', $this->startId);
+        if ($this->since != null) {
+            $query->where(function ($query) use ($sortOn) {
+                $query->where($sortOn, '>', $this->since);
+                $query->orWhere(function ($query) use ($sortOn) {
+                    $query->where($sortOn, '=', $this->since);
+                    $query->where('id', '>=', $this->startId);
+                });
             });
-        });
+        }
 
         // Check if a limit is set, if not, set limit to given limit
         $count = $query->aggregate('count');

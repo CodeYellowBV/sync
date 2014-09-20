@@ -151,4 +151,65 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $result = $req->doSync($query);
         $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
     }
+
+    /**
+     * Test if updated_at is selected if the request has set updated_at
+     */
+    public function testUpdatedAt()
+    {
+        $request = [
+            'type' => Request::TYPE_MODIFIED,
+            'limit' => 10,
+            'before' => time() - 10,
+            'since' => time() - 40,
+            'startId' => 5
+        ];
+
+        $query = $this->getQuery();
+        $query->shouldReceive('where')->with('updated_at', '<', $request['before']);
+        $query->shouldReceive('where')->with(m::on(function ($closure) {
+            return $closure instanceof Closure;
+        }));
+        $query->shouldReceive('aggregate')->with('count')->andReturn(1);
+        $query->shouldReceive('orderBy')->with('updated_at', 'ASC');
+        $query->shouldReceive('orderBy')->with('id', 'ASC');
+        $query->shouldReceive('get')->andReturn(array('test'));
+        $query->shouldReceive('limit');
+
+        $req = new Request(json_encode($request));
+        $result = $req->doSync($query);
+        $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
+    }
+
+    /**
+     * Test if before is set to current time if it is set to null
+     */
+    public function testBeforeAndSinceIsNull()
+    {
+        $request = [
+            'type' => Request::TYPE_MODIFIED,
+            'limit' => 10,
+            'before' => null,
+            'since' => null,
+            'startId' => 5
+        ];
+        $timeAfter = time();
+
+        $query = $this->getQuery();
+        $query->shouldReceive('where')->with('updated_at', '<', m::on(function ($time) use ($timeAfter) {
+            $this->assertLessThanOrEqual($time, $timeAfter);
+            return $time >= $timeAfter;
+        }));
+
+
+        $query->shouldReceive('aggregate')->with('count')->andReturn(1);
+        $query->shouldReceive('orderBy')->with('updated_at', 'ASC');
+        $query->shouldReceive('orderBy')->with('id', 'ASC');
+        $query->shouldReceive('get')->andReturn(array('test'));
+        $query->shouldReceive('limit');
+
+        $req = new Request(json_encode($request));
+        $result = $req->doSync($query);
+        $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
+    }
 }

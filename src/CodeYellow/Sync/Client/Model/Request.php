@@ -15,11 +15,20 @@ class Request implements Type
     protected $result;
 
     /**
+     * Return a new guzzle client
+     */
+    public function getGuzzle()
+    {
+        return new \GuzzleHttp\Client();
+    }
+
+    /**
      * Construct a new request
      * @param array $options Array of the options to be set.
      */
-    public function __construct(array $options)
+    public function __construct($url, array $options)
     {
+        $this->url = $url;
         foreach ($options as $key => $val) {
             $this->setOption($key, $val);
         }
@@ -33,20 +42,27 @@ class Request implements Type
      */
     private function setOption($name, $val)
     {
-        if (!in_array($name, $this->options)) {
-            throw new Exception('Option with name ' . $name . ' does not exist');
+        if (!in_array($name, $this->options) || $name == 'url') {
+            throw new \InvalidArgumentException('Option with name ' . $name . ' does not exist');
         }
         $this->$name = $val;
 
         switch ($name) {
             case 'type':
                 if (!in_array($val, [static::TYPE_NEW, static::TYPE_MODIFIED])) {
-                    throw new \Exception(
+                    throw new \InvalidArgumentException(
                         'Unexpected type ' . $val .
                         ' Chose between ' . static::TYPE_MODIFIED . ' or ' . static::TYPE_NEW
                     );
                 }
             break;
+            default:
+                if (!is_int($val) && ! is_null($val)) {
+                    throw new \InvalidArgumentException(
+                        'Option  ' . $name . ' should be an integer \'' .
+                        $val . '\' is not an integer'
+                    );
+                }
         }
     }
 
@@ -99,13 +115,9 @@ class Request implements Type
 
     public function getData()
     {
-        try {
-            $json = $this->asJson();
-            $client = new \GuzzleHttp\Client();
-            $res = $client->post($this->url, ['body' => $json]);
-        } catch (\Exception $e) {
-            dd($e->getMessage(), $this->url, $json);
-        }
+        $json = $this->asJson();
+        $client = $this->getGuzzle();
+        $res = $client->post($this->url, ['body' => $json]);
 
         return $res->json();
     }

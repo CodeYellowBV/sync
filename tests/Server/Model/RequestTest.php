@@ -1,7 +1,7 @@
 <?php
 use CodeYellow\Sync\Server\Model\Request;
 use \Mockery as m;
-class RequestTest extends PHPUnit_Framework_TestCase
+class ServerModelRequestTest extends PHPUnit_Framework_TestCase
 {
     static $database;
 

@@ -2,13 +2,14 @@
 namespace CodeYellow\Sync\Proxy\Controller;
 trait Proxy
 {
+
     /**
      * Routes a request to the correct url
      * @param string What to sync
      */
     public function sync($what)
     {
-        $config = \Config::get('packages/codeyellow/sync/config');
+        $config = $this->app['config']->get('packages/codeyellow/sync/config');
 
         if (!isset($config['servers'][$what])) {
             \App::abort(404);

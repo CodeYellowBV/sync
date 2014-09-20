@@ -93,9 +93,11 @@ class Request implements Type
         $query->orderBy($sortOn, 'ASC');
         $query->orderBy('id', 'ASC');
 
-
-        $limit == null && $limit = $this->limit;
-        $query->limit(min($this->limit, $limit));
+        // Check if there is some sort of limit set
+        if ($limit != null || $this->limit != null) {
+            $limit == null && $limit = $this->limit;
+            $query->limit(min($this->limit, $limit));
+        }
         $this->result = new Result($query->get(), $count);
         return $this->result;
     }

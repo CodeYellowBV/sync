@@ -198,7 +198,7 @@ class RequestTest extends PHPUnit_Framework_TestCase
         $query = $this->getQuery();
         $query->shouldReceive('where')->with('updated_at', '<', m::on(function ($time) use ($timeAfter) {
             $this->assertLessThanOrEqual($time, $timeAfter);
-            return $time >= $timeAfter;
+            return true;
         }));
 
 
@@ -210,6 +210,64 @@ class RequestTest extends PHPUnit_Framework_TestCase
 
         $req = new Request(json_encode($request));
         $result = $req->doSync($query);
+        $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
+    }
+
+    /**
+     * Test no limits
+     */
+    public function testNoLimits()
+    {
+        $request = [
+            'type' => Request::TYPE_MODIFIED,
+            'limit' => null,
+            'before' => time(),
+            'since' => null,
+            'startId' => 5
+        ];
+
+        $query = $this->getQuery();
+        $query->shouldReceive('where')->with('updated_at', '<', $request['before']);
+
+
+        $query->shouldReceive('aggregate')->with('count')->andReturn(1);
+        $query->shouldReceive('orderBy')->with('updated_at', 'ASC');
+        $query->shouldReceive('orderBy')->with('id', 'ASC');
+        $query->shouldReceive('get')->andReturn(array('test'));
+
+        $req = new Request(json_encode($request));
+        $result = $req->doSync($query);
+        $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
+    }
+
+    /**
+     * Test if limit passed to the function overrides user limit
+     */
+    public function testLimitOverride()
+    {
+        $clientLimit = 1;
+        $request = [
+            'type' => Request::TYPE_MODIFIED,
+            'limit' => 10,
+            'before' => time(),
+            'since' => null,
+            'startId' => 5
+        ];
+
+        $this->assertGreaterThan($clientLimit, $request['limit']);
+
+        $query = $this->getQuery();
+        $query->shouldReceive('where')->with('updated_at', '<', $request['before']);
+
+
+        $query->shouldReceive('aggregate')->with('count')->andReturn(1);
+        $query->shouldReceive('orderBy')->with('updated_at', 'ASC');
+        $query->shouldReceive('orderBy')->with('id', 'ASC');
+        $query->shouldReceive('get')->andReturn(array('test'));
+        $query->shouldReceive('limit')->with($clientLimit);
+
+        $req = new Request(json_encode($request));
+        $result = $req->doSync($query, $clientLimit);
         $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
     }
 }

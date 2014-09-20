@@ -14,7 +14,7 @@ class Result
     public function __construct(array $data, $totalRecords)
     {
         if (!is_int($totalRecords)) {
-            throw new InvalidArgumentException('syncResult: totalRecords must be an integer');
+            throw new \InvalidArgumentException('syncResult: totalRecords must be an integer');
         }
 
         $this->count = count($data);

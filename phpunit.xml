@@ -13,7 +13,6 @@
     <testsuites>
         <testsuite name="Full test">
             <directory>./tests/</directory>
-            <directory>./tests/Server/Model/Request.php</directory>
         </testsuite>
     </testsuites>
 </phpunit>

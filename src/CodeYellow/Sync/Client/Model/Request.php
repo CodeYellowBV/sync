@@ -14,12 +14,43 @@ class Request implements Type
 
     protected $result;
 
+    // Dependency injections
+    protected $guzzleInstance;
+    protected $resultInstance;
+
+    /**
+     * Return a new guzzle client
+     * @param \GuzzleHttp\Client $client
+     */
+    public function setGuzzle(\GuzzleHttp\Client $client)
+    {
+        $this->guzzleInstance = $client;
+    }
+
     /**
      * Return a new guzzle client
      */
     public function getGuzzle()
     {
-        return new \GuzzleHttp\Client();
+        return $this->guzzleInstance;
+    }
+
+    /**
+     * Set a result Instance
+     * @param ResultInterface $result
+     */
+    public function setResultInstance(ResultInterface $result)
+    {
+        $this->resultInstance = $result;
+    }
+
+    /**
+     * Returns a result instance
+     * @return ResultInterface ResultInstance
+     */
+    public function getResultInstance()
+    {
+        return $this->resultInstance;
     }
 
     /**
@@ -28,6 +59,8 @@ class Request implements Type
      */
     public function __construct($url, array $options)
     {
+        $this->setGuzzle(new \GuzzleHttp\Client());
+        $this->setResultInstance(new Result());
         $this->url = $url;
         foreach ($options as $key => $val) {
             $this->setOption($key, $val);
@@ -95,7 +128,7 @@ class Request implements Type
      */
     public function fetchData(ModelInterface $model)
     {
-        $this->result = new Result($this);
+        $this->result = $this->getResultInstance()->bind($this);
         foreach ($this->result as $item) {
             // First check if an item exists
             if ($model->itemExists($item['id'])) {
@@ -113,6 +146,10 @@ class Request implements Type
         }
     }
 
+    /**
+     * Do the request that is loaded
+     * @return array Array from the json response;
+     */
     public function getData()
     {
         $json = $this->asJson();
@@ -133,6 +170,10 @@ class Request implements Type
         $this->startId = $id;
     }
 
+    /**
+     * Returns the type of this request
+     * @return int Type
+     */
     public function getType()
     {
         return $this->type;

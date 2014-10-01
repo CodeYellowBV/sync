@@ -2,7 +2,7 @@
 namespace CodeYellow\Sync\Client\Model;
 use CodeYellow\Sync\Type;
 
-class Result implements \Iterator, Type{
+class Result implements ResultInterface, Type{
 
     private $request;
     private $count = 0;
@@ -10,11 +10,11 @@ class Result implements \Iterator, Type{
     private $data = array();
 
     /**
-     * Create a new result object
+     * Bind the result iwth a new request
      *
      * @param Request $request The request that is done
      */
-    public function __construct(Request $request)
+    public function bind(Request $request)
     {
         $this->request = $request;
     }

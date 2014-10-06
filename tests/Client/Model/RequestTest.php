@@ -1,5 +1,4 @@
 <?php
-use CodeYellow\Sync\Proxy\Controller\Proxy;
 use \Mockery as m;
 use CodeYellow\Sync\Client\Model\Request;
 class ClientModelRequest extends PHPUnit_Framework_TestCase

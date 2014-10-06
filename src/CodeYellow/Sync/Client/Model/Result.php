@@ -33,7 +33,7 @@ class Result implements ResultInterface, Type{
     /********* ITERATOR****************/
     private $currentId = 0;
     private $lastId;
-    private $lastTime;
+    private $lastTime = 0;
     public function current()
     {
         if ($this->valid()) {
@@ -51,7 +51,7 @@ class Result implements ResultInterface, Type{
 
     public function key()
     {
-        return $this->currrentId;
+        return $this->currentId;
     }
 
     public function next()

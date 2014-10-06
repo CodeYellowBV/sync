@@ -7,36 +7,61 @@ trait Proxy
     private $app;
     private $config;
 
-
+    /**
+     * Get an item from the configuration
+     * @param string $Item to get from config
+     * @return val Value of $item in config
+     */
     public function getConfig($item)
     {
-        return isset($config) ? $config : $this->app['config']->get($item);
+        return isset($this->config) ? $this->config : $this->app['config']->get($item);
     }
 
-    public function setConfig($config)
+    /**
+     * Set the config for the proxy
+     * @param Illuminate\Config\Repository $config Config file 
+     */
+    public function setConfig(array $config)
     {
         $this->config = $config;
     }
 
+    /**
+     * Get the app
+     * @return Illuminate\Foundation\Application Application
+     */
     public function getApp()
     {
-        return isset($app) ? $app : $this->app['app'];
+        return isset($this->app) ? $this->app : $this->app['app'];
     }
 
-    public function setApp($app)
+    /**
+     * Set the app
+     * @param Illuminate\Foundation\Application $app
+     */
+    public function setApp(\Illuminate\Foundation\Application $app)
     {
         $this->app = $app;
     }
 
+    /**
+     * Return the guzzle client
+     * @param \GuzzleHttp\Client The client
+     */
+    public function getGuzzle()
+    {
+        return isset($this->guzzle) ? $this->guzzle : new \GuzzleHttp\Client();
+    }
+
+    /**
+     * Set the guzzle client
+     * @param \GuzzleHttp\Client The client
+     */
     public function setGuzzle(\GuzzleHttp\Client $client)
     {
         $this->guzzle = $client;
     }
 
-    public function getGuzzle()
-    {
-        return isset($guzzle) ? $guzzle : new \GuzzleHttp\Client();
-    }
 
     /**
      * Routes a request to the correct url
@@ -61,6 +86,7 @@ trait Proxy
      * Do a request to the server
      * @param string $server Server to query
      * @param string $input Input query given
+     * @return string Body of the answer for the request
      */
     private function doRequest($server, $input)
     {

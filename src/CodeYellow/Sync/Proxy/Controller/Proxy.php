@@ -3,19 +3,39 @@ namespace CodeYellow\Sync\Proxy\Controller;
 trait Proxy
 {
 
+    private $guzzle;
+    private $app;
+    private $config;
+
+
     public function getConfig($item)
     {
-        return $this->app['config']->get($item);
+        return isset($config) ? $config : $this->app['config']->get($item);
+    }
+
+    public function setConfig($config)
+    {
+        $this->config = $config;
     }
 
     public function getApp()
     {
-        return $this->app['app'];
+        return isset($app) ? $app : $this->app['app'];
+    }
+
+    public function setApp($app)
+    {
+        $this->app = $app;
+    }
+
+    public function setGuzzle(\GuzzleHttp\Client $client)
+    {
+        $this->guzzle = $client;
     }
 
     public function getGuzzle()
     {
-        return new \GuzzleHttp\Client();
+        return isset($guzzle) ? $guzzle : new \GuzzleHttp\Client();
     }
 
     /**
@@ -37,6 +57,11 @@ trait Proxy
 
     }
 
+    /**
+     * Do a request to the server
+     * @param string $server Server to query
+     * @param string $input Input query given
+     */
     private function doRequest($server, $input)
     {
         try {

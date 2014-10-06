@@ -3,7 +3,7 @@ namespace CodeYellow\Sync\Client\Model;
 use CodeYellow\Sync\Type;
 class Request implements Type
 {
-    protected $options = ['url','type', 'limit', 'before', 'since','startId'];
+    protected $options = ['type', 'limit', 'before', 'since','startId'];
     protected $url;
     
     protected $type;

@@ -1,0 +1,3 @@
+# Global Structure
+Sync consists of three different layers. The top layer is the client. The clients initiates a request that it wants to sync an object with the server. The bottom layer is the server. The server gets a request from the client, and returns the necessary data. The server and client may communicate directly. However if there are many different clients and servers on a system, one may chose to use the proxy as an abstraction layer. The clients then do not have to be aware of all the servers, rather only of the proxy server. More information about the three layers can be found in the seperate doc files.
+

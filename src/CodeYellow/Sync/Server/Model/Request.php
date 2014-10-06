@@ -1,7 +1,29 @@
 <?php
+/**
+ * Request class
+ *
+ * PHP Version 5.4
+ *
+ * @category Sync
+ * @package  CodeYellow\Sync\
+ * @author   Stefan Majoor <stefan@codeyellow.nl>
+ * @license  MIT Licence http://opensource.org/licenses/MIT
+ * @link     https://github.com/codeyellowbv/sync
+ */
+
 namespace CodeYellow\Sync\Server\Model;
 use CodeYellow\Sync\Type;
 use CodeYellow\Sync\Exception;
+
+/**
+ * Server\Model\Request class, handles request that are received
+ *
+ * @category Sync
+ * @package  CodeYellow\Sync\
+ * @author   Stefan Majoor <stefan@codeyellow.nl>
+ * @license  MIT Licence http://opensource.org/licenses/MIT
+ * @link     https://github.com/codeyellowbv/sync
+ */
 
 class Request implements Type
 {
@@ -16,8 +38,11 @@ class Request implements Type
     /**
      * Create a sync. Sets ths json
      *
+     * @param string $json Json format of the request
+     *
      * @throws Exception\Sync\MalformedJsonException If json is malformed
-     * @throws Exception\Sync\wrongParameterException If json parameters do not meet the specification
+     * @throws Exception\Sync\wrongParameterException If json parameters do 
+     *         not meet the specification
      */
     public function __construct($json)
     {
@@ -26,6 +51,8 @@ class Request implements Type
 
     /**
      * Verifies the json. If json is ok -> sets the private vars
+     *
+     * @param string $json Json format of the request
      */
     protected function readJson($json)
     {
@@ -103,28 +130,50 @@ class Request implements Type
     }
 
     /**
-     * Getters
+     * Get the type of the request
+     *
+     * @return Type Type of the request
      */
     public function getType()
     {
         return $this->type;
     }
 
+    /**
+     * Get the user provided limit
+     * 
+     * @return int User provided limit
+     */
     public function getLimit()
     {
         return $this->limit;
     }
 
+    /**
+     * Get end time of request
+     * 
+     * @return int End time of the request
+     */
     public function getBefore()
     {
         return $this->before;
     }
 
+    /**
+     * Get the start date of the request
+     *
+     * @return int Start time of this request
+     */
     public function getSince()
     {
         return $this->since;
     }
 
+    /**
+     * Get the start id
+     *
+     * @return int Start id
+     */
     public function getStartId()
     {
         return $this->startId;

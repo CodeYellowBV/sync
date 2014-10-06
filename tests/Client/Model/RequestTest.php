@@ -40,7 +40,7 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
             'startId' => 69,
             'invalid' => 101
         ];
-        $request = new Request('example.org', $options);
+        new Request('example.org', $options);
 
     }
 
@@ -129,9 +129,60 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test Fetch data workrs 
+     * Test a Simple Fetch data workrs 
      */
-    public function testFetchData()
+    public function testSimpleFetchData()
+    {
+        $options = [
+            'type' => Request::TYPE_NEW,
+            'limit' => 10,
+            'before' => 1337,
+            'since' => 42,
+            'startId' => 69
+        ];
+        $result = [
+            ['id' => 1, 'deleted' => false],
+            ['id' => 2, 'deleted' => false]
+        ];
+
+
+        $resultMock = m::mock('CodeYellow\Sync\Client\Model\ResultInterface');
+        $modelInterface = m::mock('CodeYellow\Sync\Client\Model\modelInterface');
+
+        $request = new Request('example.org', $options);
+        $request->setResultInstance($resultMock);
+
+        $resultMock->shouldReceive('bind')->with($request)->andReturn($result);
+        $modelInterface->shouldReceive('itemExists')->with($result[0]['id'])->andReturn(false);
+        $modelInterface->shouldReceive('createItem')->with($result[0]);
+
+        $modelInterface->shouldReceive('itemExists')->with($result[1]['id'])->andReturn(false);
+        $modelInterface->shouldReceive('createItem')->with($result[1]);
+
+        $request->fetchData($modelInterface);
+    }
+
+    public function fetchDataProvider()
+    {
+        return [
+            [1, true, true, 'deleteItem'],
+            [2, true, false, 'updateItem'],
+            [3, true, null, 'updateItem'],
+            [4, false, false, 'createItem'],
+            [5, false, null, 'createItem'],
+            [6, false, true, null]
+        ];
+    }
+    /**
+     * Do a more thorough test of testSimpleFetchDAta
+     *
+     * @param int $id Id of the user to be added/updated
+     * @param bool $itemExists Does the item exist in the database already?
+     * @param bool $deleted Should the user be deleted. If null, deleted will not be set
+     * @param string $method. The method that should be called on the model 
+     * @dataProvider fetchDataProvider
+     */
+    public function testFetchData($id, $itemExists, $deleted, $method)
     {
         $options = [
             'type' => Request::TYPE_NEW,
@@ -145,10 +196,17 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
         $modelInterface = m::mock('CodeYellow\Sync\Client\Model\modelInterface');
 
         $request = new Request('example.org', $options);
-        $resultMock->shouldReceive('bind')->with($request);
-
-
         $request->setResultInstance($resultMock);
+
+        $result['id'] = $id;
+        !is_null($deleted) && $result['deleted'] = $deleted;
+
+        $resultMock->shouldReceive('bind')->with($request)->andReturn([$result]);
+        $modelInterface->shouldReceive('itemExists')->with($id)->andReturn($itemExists);
+        if ($method != null) {
+            $modelInterface->shouldReceive($method)->with($method == 'deleteItem' ? $result['id'] : $result);
+        }
+
         $request->fetchData($modelInterface);
     }
 }

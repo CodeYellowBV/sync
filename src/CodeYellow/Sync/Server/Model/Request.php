@@ -113,7 +113,7 @@ class Request implements Type
         }
 
         // Check if a limit is set, if not, set limit to given limit
-        $count = $query->aggregate('count');
+        $count = (int) $query->aggregate('count');
 
         // Order correctly
         // must be done after aggregating

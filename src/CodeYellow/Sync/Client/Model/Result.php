@@ -17,6 +17,7 @@ class Result implements ResultInterface, Type{
     public function bind(Request $request)
     {
         $this->request = $request;
+        return $this;
     }
 
     /**

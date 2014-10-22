@@ -107,10 +107,10 @@ class Request implements Type
     {
         return [
             'type' => $this->type,
-            'limit' => isset($this->limit) ? $this->limit : null,
-            'before' => isset($this->before) ? $this->before : null,
-            'since' => isset($this->since) ? $this->since : 0,
-            'startId' => isset($this->startId) ? $this->startId : 0
+            'limit' =>   (isset($this->limit) && $this->limit != null) ? (int) $this->limit : null,
+            'before' =>  (isset($this->before) && $this->before != null) ? (int) $this->before : null,
+            'since' =>   (isset($this->since) && $this->sicne != null) ? (int) $this->since : 0,
+            'startId' => (isset($this->startId) && $this->startId != null) ? (int)$this->startId : 0
         ];
     }
 

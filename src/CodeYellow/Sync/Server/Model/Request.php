@@ -63,7 +63,11 @@ class Request implements Type
         }
 
         foreach (['limit', 'before', 'since', 'startId'] as $option) {
-            if ((!is_null($request->$option) && !is_int($request->$option))) {
+            if (
+                isset($request->option)
+                && !is_null($request->$option)
+                && !is_int($request->$option)
+            ) {
                 throw new Exception\WrongParameterException($option . ' should be an integer');
             }
         }

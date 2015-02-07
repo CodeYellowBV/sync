@@ -165,6 +165,9 @@ class Request implements Type
     {
         $json = $this->asJson();
         $client = $this->getGuzzle();
+        var_dump($this->url);
+        var_dump($json);
+        var_dump('----');
         $res = $client->post($this->url, ['body' => $json]);
 
         return $res->json();
@@ -172,11 +175,16 @@ class Request implements Type
 
     /**
      * Sets the data from when we are fetching data
-     * @param $time int Timestamp from the last id
+     * @param $time string Timestamp from the last id
      * @param $id int Last id plus one
      */
     public function setFrom($time, $id)
     {
+        if (!is_int($time)) {
+            if (($time = strtotime($time)) === false) {
+                throw new Exception('Invalid time format');
+            }
+        }
         $this->since = $time;
         $this->startId = $id;
     }

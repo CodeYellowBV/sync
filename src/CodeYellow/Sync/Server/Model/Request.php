@@ -12,6 +12,7 @@
  */
 
 namespace CodeYellow\Sync\Server\Model;
+
 use CodeYellow\Sync\Type;
 use CodeYellow\Sync\Exception;
 
@@ -41,7 +42,7 @@ class Request implements Type
      * @param string $json Json format of the request
      *
      * @throws Exception\Sync\MalformedJsonException If json is malformed
-     * @throws Exception\Sync\wrongParameterException If json parameters do 
+     * @throws Exception\Sync\wrongParameterException If json parameters do
      *         not meet the specification
      */
     public function __construct($json)
@@ -82,7 +83,7 @@ class Request implements Type
 
     /**
      * Do a sync
-     * 
+     *
      * Use $eloquent->getQuery() to get the query from eloquent
      * @param Illuminate\Database\Query\Builder $query The prepared query without
      * @param int $limit The limit for how many results may be exported. If null, use user limit
@@ -96,15 +97,16 @@ class Request implements Type
         // Check if we use created_at or updated at
         $sortOn = $this->type == static::TYPE_NEW ? 'created_at' : 'updated_at';
         $before = is_null($this->before) ? time() : min(time(), $this->before);
-
+        $before = date('Y-m-d H:i:s', $before);
+        $since = date('Y-m-d H:i:s', $this->since);
         // Disregard things from before now to ensure no results are lost
         $query->where($sortOn, '<', $before);
 
         // Unsynced result are where
         // (time > now || (time == now && id >= startId))
         if ($this->since != null) {
-            $query->where(function ($query) use ($sortOn) {
-                $query->where($sortOn, '>', $this->since);
+            $query->where(function ($query) use ($sortOn, $since) {
+                $query->where($sortOn, '>', $since);
                 $query->orWhere(function ($query) use ($sortOn) {
                     $query->where($sortOn, '=', $this->since);
                     $query->where('id', '>=', $this->startId);
@@ -141,7 +143,7 @@ class Request implements Type
 
     /**
      * Get the user provided limit
-     * 
+     *
      * @return int User provided limit
      */
     public function getLimit()
@@ -151,7 +153,7 @@ class Request implements Type
 
     /**
      * Get end time of request
-     * 
+     *
      * @return int End time of the request
      */
     public function getBefore()
@@ -179,4 +181,3 @@ class Request implements Type
         return $this->startId;
     }
 }
-

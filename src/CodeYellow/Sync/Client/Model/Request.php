@@ -1,6 +1,8 @@
 <?php
 namespace CodeYellow\Sync\Client\Model;
+
 use CodeYellow\Sync\Type;
+
 class Request implements Type
 {
     protected $options = ['type', 'limit', 'before', 'since','startId'];
@@ -88,7 +90,7 @@ class Request implements Type
                         ' Chose between ' . static::TYPE_MODIFIED . ' or ' . static::TYPE_NEW
                     );
                 }
-            break;
+                break;
             default:
                 if (!is_int($val) && ! is_null($val)) {
                     throw new \InvalidArgumentException(
@@ -107,10 +109,10 @@ class Request implements Type
     {
         return [
             'type' => $this->type,
-            'limit' =>   (isset($this->limit) && $this->limit != null) ? (int) $this->limit : null,
-            'before' =>  (isset($this->before) && $this->before != null) ? (int) $this->before : null,
-            'since' =>   (isset($this->since) && $this->since != null) ? (int) $this->since : 0,
-            'startId' => (isset($this->startId) && $this->startId != null) ? (int)$this->startId : 0
+            'limit' => isset($this->limit) ? $this->limit : null,
+            'before' => isset($this->before) ? $this->before : null,
+            'since' => isset($this->since) ? $this->since : 0,
+            'startId' => isset($this->startId) ? $this->startId : 0
         ];
     }
 
@@ -123,21 +125,31 @@ class Request implements Type
     }
 
     /**
+     * Returns if an item of the result is deleted
+     */
+    private function isDeleted($item)
+    {
+        return (isset($item['deleted']) && $item['deleted']) ||
+            (isset($item['deleted_at']) && !is_null($item['deleted_at']));
+                
+    }
+    /**
      * Fetch more data
      * @param ModelInterface $model The model we have to call with data
      */
     public function fetchData(ModelInterface $model)
     {
         $this->result = $this->getResultInstance()->bind($this);
+
         foreach ($this->result as $item) {
             // First check if an item exists
             if ($model->itemExists($item['id'])) {
-                if (isset($item['deleted']) && $item['deleted']) {
+                if ($this->isDeleted($item)) {
                     $model->deleteItem($item['id']);
                 } else {
                     $model->updateItem($item);
                 }
-            } else if (!isset($item['deleted']) || !$item['deleted']) {
+            } else if (!$this->isDeleted($item)) {
                 $model->createItem($item);
             }
 
@@ -177,5 +189,4 @@ class Request implements Type
     {
         return $this->type;
     }
-
 }

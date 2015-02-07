@@ -63,11 +63,7 @@ class Request implements Type
         }
 
         foreach (['limit', 'before', 'since', 'startId'] as $option) {
-            if (
-                isset($request->option)
-                && !is_null($request->$option)
-                && !is_int($request->$option)
-            ) {
+            if ((!is_null($request->$option) && !is_int($request->$option))) {
                 throw new Exception\WrongParameterException($option . ' should be an integer');
             }
         }
@@ -101,27 +97,23 @@ class Request implements Type
         $sortOn = $this->type == static::TYPE_NEW ? 'created_at' : 'updated_at';
         $before = is_null($this->before) ? time() : min(time(), $this->before);
 
-        // change before and since from unixtime to timestamps
-        $before = date('Y-m-d H:i:s', $before);
-        $since = date('Y-m-d H:i:s', $this->since);
-
         // Disregard things from before now to ensure no results are lost
         $query->where($sortOn, '<', $before);
 
         // Unsynced result are where
         // (time > now || (time == now && id >= startId))
         if ($this->since != null) {
-            $query->where(function ($query) use ($sortOn, $since) {
+            $query->where(function ($query) use ($sortOn) {
                 $query->where($sortOn, '>', $this->since);
                 $query->orWhere(function ($query) use ($sortOn) {
-                    $query->where($sortOn, '=', $since);
+                    $query->where($sortOn, '=', $this->since);
                     $query->where('id', '>=', $this->startId);
                 });
             });
         }
 
         // Check if a limit is set, if not, set limit to given limit
-        $count = (int) $query->aggregate('count');
+        $count = $query->aggregate('count');
 
         // Order correctly
         // must be done after aggregating

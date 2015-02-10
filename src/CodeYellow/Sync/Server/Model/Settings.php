@@ -1,7 +1,9 @@
 <?php
 namespace CodeYellow\Sync\Server\Model;
 
-class Settings implements CodeYellow\Sync\Type, SettingsInterface
+use \CodeYellow\Sync\Type;
+
+class Settings implements Type, SettingsInterface
 {
     const FORMAT_TIMESTAMP = 'timestamp';
     const FORMAT_DATETIME = 'datetime';
@@ -9,6 +11,7 @@ class Settings implements CodeYellow\Sync\Type, SettingsInterface
     protected $timeFormat;
     protected $createdAtName;
     protected $updatedAtName;
+    protected $deletedAtName;
 
     /**
      * Create a new settings class
@@ -18,28 +21,69 @@ class Settings implements CodeYellow\Sync\Type, SettingsInterface
      * @param string $updatedAtName The column name for the updated_at attribute
      */
     public function __construct(
-        $timeFormat = FORMAT_TIMESTAMP,
+        $timeFormat = null,
         $createdAtName = 'created_at',
-        $updatedAtName = 'updated_at'
+        $updatedAtName = 'updated_at',
+        $deletedAtName = 'deleted_at'
     ) {
-        if (!in_array($timeFormat, [FORMAT_TIMESTAMP, FORMAT_DATETIME])) {
+        if (is_null($timeFormat)) {
+            $timeFormat = static::FORMAT_DATETIME;
+        }
+
+        if (!in_array($timeFormat, [static::FORMAT_TIMESTAMP, static::FORMAT_DATETIME])) {
             throw new \InvalidArgumentException(
-                'timeFormat must be either TIMESTAMP or DATETIME'
+                'timeFormat must be either' . static::FORMAT_TIMESTAMP .
+                ' or ' . static::FORMAT_DATETIME . ' but is'
+                . $timeFormat
             );
         }
+
         $this->timeFormat = $timeFormat;
         $this->createdAtName = $createdAtName;
         $this->updatedAtName = $updatedAtName;
+        $this->deletedAt = $deletedAtName;
     }
 
-    protected function formatTimeStamp($time)
+    /**
+     * Format timestamp from unix timestamp to the timestamp
+     * that is used in the model.
+     *
+     * @param int $time UnixTime
+     * @return mixed TimeStamp
+     */
+    public function fromUnixTime($time)
     {
-        if ($timeFormat == static::FORMAT_TIMESTAMP) {
+        if ($this->timeFormat == static::FORMAT_TIMESTAMP) {
             return $time;
-        } else {
-            return date('Y-m-d H:i:s', $time);
         }
+        
+        return date('Y-m-d H:i:s', $time);
     }
+
+    /**
+     * Format timestamp from locak timestamp to the unix timestamp
+     * that is used in the model.
+     *
+     * @param mixed $time Timestamp
+     * @return int Unix timestamp
+     */
+    public function toUnixTime($time)
+    {
+        if ($this->timeFormat == static::FORMAT_TIMESTAMP) {
+            return $timel;
+        }
+
+        if ($time instanceof \DateTime) {
+            return $time->getTimeStamp();
+        }
+
+        if (is_string($time)) {
+            return strtotime($time);
+        }
+
+        return null;
+    }
+
 
     /**
      * Get the column name that responds to $type
@@ -50,9 +94,9 @@ class Settings implements CodeYellow\Sync\Type, SettingsInterface
     protected function getColumnName($type)
     {
         switch ($type) {
-            case TYPE_NEW:
+            case static::TYPE_NEW:
                 return $this->createdAtName;
-            case TYPE_MODIFIED:
+            case static::TYPE_MODIFIED:
                 return $this->updatedAtName;
         }
 
@@ -80,7 +124,7 @@ class Settings implements CodeYellow\Sync\Type, SettingsInterface
         $query->where(
             $this->getColumnName($mode),
             '<',
-            $this->formatTimeStamp($time)
+            $this->fromUnixTime($time)
         );
     }
 
@@ -103,8 +147,8 @@ class Settings implements CodeYellow\Sync\Type, SettingsInterface
         $time,
         $startId
     ) {
-        $sortOn = $this->getColumnName();
-        $time = $this->formatTimeStamp($time);
+        $sortOn = $this->getColumnName($mode);
+        $time = $this->fromUnixTime($time);
 
         $query->where(function ($query) use ($sortOn, $time, $startId) {
             $query->where($sortOn, '>', $time);
@@ -121,5 +165,35 @@ class Settings implements CodeYellow\Sync\Type, SettingsInterface
                 }
             );
         });
+    }
+
+    /**
+     * Order the results of a query
+     *
+     * @param \Illuminate\Database\Query\Builder $query
+     *        Query to set before time for
+     * @param Enum $mode Mode that we are in. Either
+     *        CodeYellow\Sync\Type\TYPE_NEW or
+     *        CodeYellow\Sync\Type\TYPE_MODIFIEDs
+     */
+    public function order(
+        \Illuminate\Database\Query\Builder $query,
+        $mode
+    ) {
+        $query->orderBy($this->getColumnName($mode), 'ASC');
+        $query->orderBy('id', 'ASC');
+    }
+
+    /**
+     * Return all the fields that should be dealt with as a time field
+     * @return array String Names of fields that are datetime
+     */
+    public function getTimeFields()
+    {
+        return [
+            $this->updatedAtName,
+            $this->createdAtName,
+            $this->deletedAtName
+        ];
     }
 }

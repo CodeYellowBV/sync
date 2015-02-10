@@ -116,15 +116,14 @@ class Request implements Type
 
         // Order correctly
         // must be done after aggregating
-        $query->orderBy($sortOn, 'ASC');
-        $query->orderBy('id', 'ASC');
+        $settings->order($query, $this->type);
 
         // Check if there is some sort of limit set
         if ($limit != null || $this->limit != null) {
             $limit == null && $limit = $this->limit;
             $query->limit(min($this->limit, $limit));
         }
-        $this->result = new Result($query->get(), $count);
+        $this->result = new Result($query->get(), $count, $settings);
         return $this->result;
     }
 

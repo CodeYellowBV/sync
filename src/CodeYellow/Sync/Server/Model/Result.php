@@ -1,5 +1,6 @@
 <?php
 namespace CodeYellow\Sync\Server\Model;
+
 class Result
 {
     private $count;

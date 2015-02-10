@@ -15,6 +15,7 @@ namespace CodeYellow\Sync\Server\Model;
 
 use CodeYellow\Sync\Type;
 use CodeYellow\Sync\Exception;
+use CodeYellow\Sync\Server\Model\SettingsInterface;
 
 /**
  * Server\Model\Request class, handles request that are received
@@ -35,6 +36,8 @@ class Request implements Type
     private $startId;
 
     private $result; // The result of this query
+
+    private $settings; // The current settings of the request
 
     /**
      * Create a sync. Sets ths json
@@ -88,30 +91,24 @@ class Request implements Type
      * @param Illuminate\Database\Query\Builder $query The prepared query without
      * @param int $limit The limit for how many results may be exported. If null, use user limit
      */
-    public function doSync(\Illuminate\Database\Query\Builder $query, $limit = null)
-    {
+    public function doSync(
+        \Illuminate\Database\Query\Builder $query,
+        SettingsInterface $settings,
+        $limit = null
+    ) {
         if (!is_int($limit) && !is_null($limit)) {
             throw new \InvalidArgumentException('SyncRequest::doSync limit must be an integer');
         }
 
-        // Check if we use created_at or updated at
-        $sortOn = $this->type == static::TYPE_NEW ? 'created_at' : 'updated_at';
+        // Set an upperbound for the timestamp, to make sure that edits that
+        // are made this second are not lost
         $before = is_null($this->before) ? time() : min(time(), $this->before);
-        $before = date('Y-m-d H:i:s', $before);
-        $since = date('Y-m-d H:i:s', $this->since);
-        // Disregard things from before now to ensure no results are lost
-        $query->where($sortOn, '<', $before);
+        $settings->setBefore($query, $this->type, $before);
 
         // Unsynced result are where
         // (time > now || (time == now && id >= startId))
         if ($this->since != null) {
-            $query->where(function ($query) use ($sortOn, $since) {
-                $query->where($sortOn, '>', $since);
-                $query->orWhere(function ($query) use ($sortOn) {
-                    $query->where($sortOn, '=', $this->since);
-                    $query->where('id', '>=', $this->startId);
-                });
-            });
+            $settings->setSince($query, $this->type, $this->since, $this->startId);
         }
 
         // Check if a limit is set, if not, set limit to given limit
@@ -181,3 +178,4 @@ class Request implements Type
         return $this->startId;
     }
 }
+

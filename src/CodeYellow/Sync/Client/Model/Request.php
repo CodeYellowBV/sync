@@ -165,11 +165,7 @@ class Request implements Type
     {
         $json = $this->asJson();
         $client = $this->getGuzzle();
-        var_dump($this->url);
-        var_dump($json);
-        var_dump('----');
         $res = $client->post($this->url, ['body' => $json]);
-
         return $res->json();
     }
 

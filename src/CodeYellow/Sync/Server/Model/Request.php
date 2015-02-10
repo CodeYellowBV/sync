@@ -12,8 +12,10 @@
  */
 
 namespace CodeYellow\Sync\Server\Model;
+
 use CodeYellow\Sync\Type;
 use CodeYellow\Sync\Exception;
+use CodeYellow\Sync\Server\Model\SettingsInterface;
 
 /**
  * Server\Model\Request class, handles request that are received
@@ -35,13 +37,15 @@ class Request implements Type
 
     private $result; // The result of this query
 
+    private $settings; // The current settings of the request
+
     /**
      * Create a sync. Sets ths json
      *
      * @param string $json Json format of the request
      *
      * @throws Exception\Sync\MalformedJsonException If json is malformed
-     * @throws Exception\Sync\wrongParameterException If json parameters do 
+     * @throws Exception\Sync\wrongParameterException If json parameters do
      *         not meet the specification
      */
     public function __construct($json)
@@ -82,34 +86,29 @@ class Request implements Type
 
     /**
      * Do a sync
-     * 
+     *
      * Use $eloquent->getQuery() to get the query from eloquent
      * @param Illuminate\Database\Query\Builder $query The prepared query without
      * @param int $limit The limit for how many results may be exported. If null, use user limit
      */
-    public function doSync(\Illuminate\Database\Query\Builder $query, $limit = null)
-    {
+    public function doSync(
+        \Illuminate\Database\Query\Builder $query,
+        SettingsInterface $settings,
+        $limit = null
+    ) {
         if (!is_int($limit) && !is_null($limit)) {
             throw new \InvalidArgumentException('SyncRequest::doSync limit must be an integer');
         }
 
-        // Check if we use created_at or updated at
-        $sortOn = $this->type == static::TYPE_NEW ? 'created_at' : 'updated_at';
+        // Set an upperbound for the timestamp, to make sure that edits that
+        // are made this second are not lost
         $before = is_null($this->before) ? time() : min(time(), $this->before);
-
-        // Disregard things from before now to ensure no results are lost
-        $query->where($sortOn, '<', $before);
+        $settings->setBefore($query, $this->type, $before);
 
         // Unsynced result are where
         // (time > now || (time == now && id >= startId))
         if ($this->since != null) {
-            $query->where(function ($query) use ($sortOn) {
-                $query->where($sortOn, '>', $this->since);
-                $query->orWhere(function ($query) use ($sortOn) {
-                    $query->where($sortOn, '=', $this->since);
-                    $query->where('id', '>=', $this->startId);
-                });
-            });
+            $settings->setSince($query, $this->type, $this->since, $this->startId);
         }
 
         // Check if a limit is set, if not, set limit to given limit
@@ -117,15 +116,14 @@ class Request implements Type
 
         // Order correctly
         // must be done after aggregating
-        $query->orderBy($sortOn, 'ASC');
-        $query->orderBy('id', 'ASC');
+        $settings->order($query, $this->type);
 
         // Check if there is some sort of limit set
         if ($limit != null || $this->limit != null) {
             $limit == null && $limit = $this->limit;
             $query->limit(min($this->limit, $limit));
         }
-        $this->result = new Result($query->get(), $count);
+        $this->result = new Result($query->get(), $count, $settings);
         return $this->result;
     }
 
@@ -141,7 +139,7 @@ class Request implements Type
 
     /**
      * Get the user provided limit
-     * 
+     *
      * @return int User provided limit
      */
     public function getLimit()
@@ -151,7 +149,7 @@ class Request implements Type
 
     /**
      * Get end time of request
-     * 
+     *
      * @return int End time of the request
      */
     public function getBefore()

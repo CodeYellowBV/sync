@@ -145,9 +145,9 @@ class Request implements Type
             // First check if an item exists
             if ($model->itemExists($item['id']) && $this->isDeleted($item)) {
                 $model->deleteItem($item['id']);
-            } else if ($model->itemExists($item['id'])) {
+            } elseif ($model->itemExists($item['id'])) {
                 $model->updateItem($item);
-            } else if (!$this->isDeleted($item)) {
+            } elseif (!$this->isDeleted($item)) {
                 $model->createItem($item);
             }
         }

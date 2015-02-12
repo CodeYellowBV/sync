@@ -1,8 +1,10 @@
 <?php
 namespace CodeYellow\Sync\Client\Model;
+
 use CodeYellow\Sync\Type;
 
-class Result implements ResultInterface, Type{
+class Result implements ResultInterface, Type
+{
 
     private $request;
     private $count = 0;
@@ -81,5 +83,4 @@ class Result implements ResultInterface, Type{
         // Check if this item is set now
         return isset($this->data[$this->currentId]);
     }
-
-} 
+}

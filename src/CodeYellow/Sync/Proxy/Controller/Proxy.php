@@ -1,5 +1,6 @@
 <?php
 namespace CodeYellow\Sync\Proxy\Controller;
+
 trait Proxy
 {
 
@@ -19,7 +20,7 @@ trait Proxy
 
     /**
      * Set the config for the proxy
-     * @param Illuminate\Config\Repository $config Config file 
+     * @param Illuminate\Config\Repository $config Config file
      */
     public function setConfig(array $config)
     {
@@ -94,7 +95,10 @@ trait Proxy
             $client = $this->getGuzzle();
             $res = $client->post($server['url'], ['body' => $input]);
         } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            $this->getApp()->abort($e->getResponse()->getStatusCode(), 'An error has occured. URL:' . $server['url']. ' input:' . $input);
+            $this->getApp()->abort(
+                $e->getResponse()->getStatusCode(),
+                'An error has occured. URL:' . $server['url']. ' input:' . $input
+            );
             return;
         }
         return $res->getBody();

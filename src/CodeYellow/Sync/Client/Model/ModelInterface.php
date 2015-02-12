@@ -1,5 +1,6 @@
 <?php
 namespace CodeYellow\Sync\Client\Model;
+
 interface ModelInterface
 {
     /**

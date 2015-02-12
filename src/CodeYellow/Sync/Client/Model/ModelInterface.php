@@ -4,10 +4,10 @@ interface ModelInterface
 {
     /**
      * Returns a boolean indicating if an id exists already
-     * @param $id Integer the id of the item
+     * @param $itemId Integer the id of the item
      * @return boolean indicating if an item with id $id exists
      */
-    public function itemExists($id);
+    public function itemExists($itemId);
 
     /**
      * Create a new item.
@@ -26,8 +26,8 @@ interface ModelInterface
 
     /**
      * Delete an existing item
-     * @param int $id The id of the item to delete
+     * @param int $itemId The id of the item to delete
      * @return boolean Do we have to continue
      */
-    public function deleteItem($id);
+    public function deleteItem($itemId);
 }

@@ -37,8 +37,6 @@ class Request implements Type
 
     private $result; // The result of this query
 
-    private $settings; // The current settings of the request
-
     /**
      * Create a sync. Sets ths json
      *

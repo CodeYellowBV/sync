@@ -42,12 +42,10 @@ class Result implements ResultInterface, Type{
             $this->lastId = $data['id'];
             $this->lastTime = $data[$this->request->getType() == static::TYPE_NEW ? 'created_at' : 'updated_at'];
             return $data;
-        } else {
-            // Return null if the element does not exists. This is stupid, an exception should be thrown, but
-            // this is what the interface tells us to do
-            return null;
         }
-
+        // Return null if the element does not exists. This is stupid, an exception should be thrown, but
+        // this is what the interface tells us to do
+        return null;
     }
 
     public function key()

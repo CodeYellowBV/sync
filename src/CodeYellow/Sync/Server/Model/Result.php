@@ -26,7 +26,7 @@ class Result
         $this->count = count($data);
         $this->remaining = max($totalRecords - $this->count, 0);
 
-        foreach ($data as $key => &$result) {
+        foreach ($data as &$result) {
             $result = (array) $result;
             foreach ($settings->getTimeFields() as $time) {
                 if (isset($result[$time])) {

@@ -143,17 +143,13 @@ class Request implements Type
 
         foreach ($this->result as $item) {
             // First check if an item exists
-            if ($model->itemExists($item['id'])) {
-                if ($this->isDeleted($item)) {
-                    $model->deleteItem($item['id']);
-                } else {
-                    $model->updateItem($item);
-                }
+            if ($model->itemExists($item['id']) && $this->isDeleted($item)) {
+                $model->deleteItem($item['id']);
+            } else if ($model->itemExists($item['id'])) {
+                $model->updateItem($item);
             } else if (!$this->isDeleted($item)) {
                 $model->createItem($item);
             }
-
-            // If the model is not exists, and the model needs to be deleted, do nothing
         }
     }
 
@@ -172,9 +168,9 @@ class Request implements Type
     /**
      * Sets the data from when we are fetching data
      * @param $time string Timestamp from the last id
-     * @param $id int Last id plus one
+     * @param $itemId int Last id plus one
      */
-    public function setFrom($time, $id)
+    public function setFrom($time, $itemId)
     {
         if (!is_int($time)) {
             if (($time = strtotime($time)) === false) {
@@ -182,7 +178,7 @@ class Request implements Type
             }
         }
         $this->since = $time;
-        $this->startId = $id;
+        $this->startId = $itemId;
     }
 
     /**

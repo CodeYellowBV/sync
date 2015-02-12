@@ -246,7 +246,7 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
 
         $array = $request->asArray();
 
-        $this->assertEquals($array['since'], strtotime($date));
+        $this->assertEquals($array['since'], strtotime($date));     
 
     }
 }

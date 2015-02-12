@@ -14,15 +14,18 @@ $request = new \CodeYellow\Sync\Server\Model\Request($rawRequest);
 ## Fetch the result
 If the request is accepted, and a Request model is created, the next step is to fullfill the request. This is done by the doSync method. This method needs a \Illuminate\Database\Query\Builder object. If you use an Eloquent, calling getQuery() will give you this object. Before you pass the builder you are allowed to filter the set of data that is synchronised. For example, if you have a database with users, and an endpoint that synchronises all users above 18, you can filter this beforehand. Every query that is given as an argument needs three columns: id, created_at, and updated_at. When the request doSync is called additional constraints will be added to the request to ensure that the correct records are synchronised. After this is done, a Result object is generated and returned. 
 
-As an additional second parameter the maximum batch size can be given. The actual batch size will be determined by the minimum of the server provided maximum batch size, the client provided maximum batch size and the actual amount of records that need to be synced. When the maximum batch size is not given by the server, then the given maximum batch size from the client is used. This may cause the server to use a lot of resources! Therefore it is wise to set a batch size. Furthermore, setting the batch size too low will cause the client to have to make a lot of request.
+In a second parameter the settings object needs to be set. The settings object is needed to set the specific database parameters correctly, furthermore it allows to easily extend the funcionality of Sync, by creating a custom Settings class. 
+
+As an additional third parameter the maximum batch size can be given. The actual batch size will be determined by the minimum of the server provided maximum batch size, the client provided maximum batch size and the actual amount of records that need to be synced. When the maximum batch size is not given by the server, then the given maximum batch size from the client is used. This may cause the server to use a lot of resources! Therefore it is wise to set a batch size. Furthermore, setting the batch size too low will cause the client to have to make a lot of request.
 
 ### Example Code
 ```
 $rawRequest = file_get_contents('php://input');
 $request = new \CodeYellow\Sync\Server\Model\Request($rawRequest);
+$settings = new \CodeYellow\Sync\Server\Model\Settings();
 $model = new Model(); // Where Model is an eloquent model
 $model->where('age' > 18);
-$result = $model->doSync($model->getQuery(), 10);
+$result = $request->doSync($model->getQuery(),$settings, 10);
 ```
 
 ## The Result model

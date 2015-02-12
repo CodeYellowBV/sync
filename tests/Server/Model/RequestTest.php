@@ -1,5 +1,6 @@
 <?php
 use CodeYellow\Sync\Server\Model\Request;
+use CodeYellow\Sync\Server\Model\Settings;
 use \Mockery as m;
 class ServerModelRequestTest extends PHPUnit_Framework_TestCase
 {
@@ -107,7 +108,7 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
         ];
         $req = new Request(json_encode($request));
 
-        $req->doSync($this->getQuery(), 'test');
+        $req->doSync($this->getQuery(), new Settings(), 'test');
     }
 
     /**
@@ -148,7 +149,9 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
         $query->shouldReceive('get')->andReturn(array('test'));
 
         $req = new Request(json_encode($request));
-        $result = $req->doSync($query);
+        $result = $req->doSync($query, new Settings(
+            Settings::FORMAT_TIMESTAMP
+        ));
         $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
     }
 
@@ -177,7 +180,9 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
         $query->shouldReceive('limit');
 
         $req = new Request(json_encode($request));
-        $result = $req->doSync($query);
+        $result = $req->doSync($query, new Settings(
+            Settings::FORMAT_TIMESTAMP
+        ));
         $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
     }
 
@@ -209,7 +214,9 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
         $query->shouldReceive('limit');
 
         $req = new Request(json_encode($request));
-        $result = $req->doSync($query);
+        $result = $req->doSync($query, new Settings(
+            Settings::FORMAT_TIMESTAMP
+        ));
         $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
     }
 
@@ -236,7 +243,9 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
         $query->shouldReceive('get')->andReturn(array('test'));
 
         $req = new Request(json_encode($request));
-        $result = $req->doSync($query);
+        $result = $req->doSync($query, new Settings(
+            Settings::FORMAT_TIMESTAMP
+        ));
         $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
     }
 
@@ -267,7 +276,9 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
         $query->shouldReceive('limit')->with($clientLimit);
 
         $req = new Request(json_encode($request));
-        $result = $req->doSync($query, $clientLimit);
+        $result = $req->doSync($query, new Settings(
+            Settings::FORMAT_TIMESTAMP
+        ), $clientLimit);
         $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
     }
 }

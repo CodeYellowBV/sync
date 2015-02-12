@@ -208,4 +208,45 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
 
         $request->fetchData($modelInterface);
     }
+
+    /**
+     * Test if setFrom throws an exception if an invalid time
+     * is set
+     * @expectedException InvalidArgumentException
+     */
+    public function testSetFromTimeException()
+    {
+        $options = [
+            'type' => Request::TYPE_NEW,
+            'limit' => 10,
+            'before' => 1337,
+            'since' => 42,
+            'startId' => 69
+        ];
+        $request = new Request('example.org', $options);
+        $request->setFrom('derp', 1);
+    }
+
+    /**
+     * Test if the setFrom works if a datetimestring is given
+     */
+    public function testSetFromDateTime()
+    {
+        $date = date('Y-m-d H:i:s');
+
+        $options = [
+            'type' => Request::TYPE_NEW,
+            'limit' => 10,
+            'before' => 1337,
+            'since' => 42,
+            'startId' => 69
+        ];
+        $request = new Request('example.org', $options);
+        $request->setFrom($date, 1);
+
+        $array = $request->asArray();
+
+        $this->assertEquals($array['since'], strtotime($date));
+
+    }
 }

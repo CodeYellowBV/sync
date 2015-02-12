@@ -178,7 +178,7 @@ class Request implements Type
     {
         if (!is_int($time)) {
             if (($time = strtotime($time)) === false) {
-                throw new Exception('Invalid time format');
+                throw new \InvalidArgumentException('Invalid time format');
             }
         }
         $this->since = $time;

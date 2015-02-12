@@ -70,7 +70,7 @@ class Settings implements Type, SettingsInterface
     public function toUnixTime($time)
     {
         if ($this->timeFormat == static::FORMAT_TIMESTAMP) {
-            return $timel;
+            return $time;
         }
 
         if ($time instanceof \DateTime) {
@@ -93,16 +93,11 @@ class Settings implements Type, SettingsInterface
      */
     protected function getColumnName($type)
     {
-        switch ($type) {
-            case static::TYPE_NEW:
-                return $this->createdAtName;
-            case static::TYPE_MODIFIED:
-                return $this->updatedAtName;
+        if ($type == static::TYPE_NEW) {
+            return $this->createdAtName;
         }
+        return $this->updatedAtName;
 
-        throw new InvalidArgumentException(
-            'Type ' . $type . ' does not exist'
-        );
     }
 
     /**

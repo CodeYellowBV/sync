@@ -19,7 +19,7 @@ class Result
         $totalRecords,
         SettingsInterface $settings
     ) {
-        if (!is_int($totalRecords)) {
+        if ('' . (int)$totalRecords != $totalRecords) {
             throw new \InvalidArgumentException('syncResult: totalRecords must be an integer');
         }
 

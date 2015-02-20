@@ -109,8 +109,11 @@ class Request implements Type
             $settings->setSince($query, $this->type, $this->since, $this->startId);
         }
 
+        // Cloning because aggregate undoes select
+        $countQuery = clone $query;
+
         // Check if a limit is set, if not, set limit to given limit
-        $count = $query->aggregate('count');
+        $count = $countQuery->aggregate('count');
 
         // Order correctly
         // must be done after aggregating

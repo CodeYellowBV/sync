@@ -12,6 +12,7 @@ class ClientModelResult extends PHPUnit_Framework_TestCase
         $result = new Result();
 
         $request->shouldReceive('setFrom');
+        $request->shouldReceive('getOption')->andReturn(null);
         $request->shouldReceive('getData')->andReturn(['count' => 0, 'remaining' => 0, 'data' => []]);
         $result->bind($request);
 
@@ -32,6 +33,61 @@ class ClientModelResult extends PHPUnit_Framework_TestCase
                 ];
 
         $request->shouldReceive('setFrom');
+        $request->shouldReceive('getOption')->andReturn(null);
+
+        $request->shouldReceive('getData')->andReturn(
+            ['count' => 2, 'remaining' => 0, 'data' =>
+                $data
+            ]
+        );
+        $request->shouldReceive('getType')->andReturn(Result::TYPE_NEW);
+
+        $result->bind($request);
+
+        $this->assertEquals($result->valid(), true);
+        $this->assertEquals($result->current(), $data[0]);
+
+        $result->next();
+        
+        $this->assertEquals($result->valid(), true);
+        $this->assertEquals($result->current(), $data[1]);
+
+        $result->next();
+
+        $this->assertEquals($result->valid(), false);
+        $this->assertEquals($result->current(), null);
+
+        $this->assertEquals($result->key(), 2);
+
+        $result->rewind();
+
+        $this->assertEquals($result->valid(), true);
+        $this->assertEquals($result->current(), $data[0]);
+    }
+
+    /**
+     * Test a request with options
+     *
+     * @group blaat
+     */
+    public function testWithOptions()
+    {
+        $lastTime = 123123;
+        $lastId = 1337;
+
+        $request = m::mock('\CodeYellow\Sync\Client\Model\Request');
+        $result = new Result();
+        $data = [
+            ['id'=> 1, 'created_at' => 0],
+            ['id'=> 2, 'created_at' => 1]
+        ];
+
+        // Give request a startId of 1337.
+        $request->shouldReceive('getOption')->with('startId')->andReturn($lastId);
+        $request->shouldReceive('getOption')->with('since')->andReturn($lastTime);
+        
+        // Check that request is given 1337.
+        $request->shouldReceive('setFrom')->with($lastTime, $lastId)->once();
 
         $request->shouldReceive('getData')->andReturn(
             ['count' => 2, 'remaining' => 0, 'data' =>
@@ -95,6 +151,7 @@ class ClientModelResult extends PHPUnit_Framework_TestCase
             ]
         )->once();
 
+        $request->shouldReceive('getOption')->andReturn(null);
         $request->shouldReceive('getType')->andReturn(Result::TYPE_NEW);
 
         $result->bind($request);

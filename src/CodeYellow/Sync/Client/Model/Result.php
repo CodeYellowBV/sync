@@ -19,6 +19,12 @@ class Result implements ResultInterface, Type
     public function bind(Request $request)
     {
         $this->request = $request;
+
+        // Full of hacks!!!!
+        $this->lastId = $this->request->getOption('startId') !== null ? $this->request->getOption('startId') - 1 : null;
+        $this->lastTime = $this->request->getOption('since');
+        $this->remaining = 1;
+
         return $this;
     }
 

@@ -101,6 +101,11 @@ class Request implements Type
         }
     }
 
+    public function getOption($name)
+    {
+        return $this->$name;
+    }
+
     /**
      * Returns an array of the options in this request
      * @returns array This object

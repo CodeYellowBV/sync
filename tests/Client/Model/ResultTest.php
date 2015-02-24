@@ -84,7 +84,7 @@ class ClientModelResult extends PHPUnit_Framework_TestCase
 
         // Give request a startId of 1337.
         $request->shouldReceive('getOption')->with('startId')->andReturn($lastId);
-        $request->shouldReceive('getOption')->with('since')->andReturn($lastTime);
+        $request->shouldReceive('getOption')->with('since', 0)->andReturn($lastTime);
         
         // Check that request is given 1337.
         $request->shouldReceive('setFrom')->with($lastTime, $lastId)->once();

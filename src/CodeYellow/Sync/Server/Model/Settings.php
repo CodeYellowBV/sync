@@ -145,7 +145,7 @@ class Settings implements Type, SettingsInterface
         $sortOn = $this->getColumnName($mode);
         $time = $this->fromUnixTime($time);
 
-        $query->where($sortOn, '>', $time);
+        $query->where($sortOn, '>=', $time);
         $query->where('id', '>=', $startId);
     }
 

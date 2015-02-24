@@ -22,7 +22,7 @@ class Result implements ResultInterface, Type
 
         // Full of hacks!!!!
         $this->lastId = $this->request->getOption('startId') !== null ? $this->request->getOption('startId') - 1 : null;
-        $this->lastTime = $this->request->getOption('since');
+        $this->lastTime = $this->request->getOption('since', 0);
         $this->remaining = 1;
 
         return $this;

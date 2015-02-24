@@ -145,21 +145,8 @@ class Settings implements Type, SettingsInterface
         $sortOn = $this->getColumnName($mode);
         $time = $this->fromUnixTime($time);
 
-        $query->where(function ($query) use ($sortOn, $time, $startId) {
-            $query->where($sortOn, '>', $time);
-            $query->orWhere(
-                function (
-                    $query
-                ) use (
-                    $sortOn,
-                    $time,
-                    $startId
-                ) {
-                    $query->where($sortOn, '=', $time);
-                    $query->where('id', '>=', $startId);
-                }
-            );
-        });
+        $query->where($sortOn, '>', $time);
+        $query->where('id', '>=', $startId);
     }
 
     /**

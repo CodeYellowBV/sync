@@ -101,9 +101,9 @@ class Request implements Type
         }
     }
 
-    public function getOption($name)
+    public function getOption($name, $default = null)
     {
-        return $this->$name;
+        return $this->$name !== null ? $this->$name : $default;
     }
 
     /**

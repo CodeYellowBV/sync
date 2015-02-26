@@ -174,7 +174,5 @@ class ClientModelResult extends PHPUnit_Framework_TestCase
 
         $result->next();
         $this->assertEquals($result->valid(), false);
-
-
     }
 }

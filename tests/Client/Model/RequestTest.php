@@ -267,4 +267,35 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($array['since'], strtotime($date));
     }
+
+    /**
+     * Tests if the getOption method works
+     */
+    public function testGetOption()
+    {
+        $options = [
+            'since' => 1,
+            'limit' => 10
+        ];
+        
+        $notSetOptions = [
+            'type' => Request::TYPE_NEW
+        ];
+
+        $request = new Request('', $options);
+
+        foreach ($options as $name => $value) {
+            $this->assertEquals($request->getOption($name, ""), $value);
+        }
+
+        foreach ($notSetOptions as $name => $value) {
+            $this->assertEquals($request->getOption($name, 'test'), 'test');
+        }
+
+        foreach ($notSetOptions as $name => $value) {
+            $this->assertNull($request->getOption($name));
+            return;
+        }
+
+    }
 }

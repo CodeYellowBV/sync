@@ -148,10 +148,15 @@ class Request implements Type
 
         foreach ($this->result as $item) {
             // First check if an item exists
-            if ($model->itemExists($item['id']) && $this->isDeleted($item)) {
-                $model->deleteItem($item['id']);
-            } elseif ($model->itemExists($item['id'])) {
+            if ($model->itemExists($item['id'])) {
                 $model->updateItem($item);
+
+                // If the item is deleted, an update
+                // is done before, because the update
+                // might still be relevant
+                if ($this->isDeleted($item)) {
+                    $this->deleteItem($item);
+                }
             } elseif (!$this->isDeleted($item)) {
                 $model->createItem($item);
             }

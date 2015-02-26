@@ -47,17 +47,20 @@ Delete an item from the database with id $id.
 ### What is done when
 There are a couple of different scenarios for the modelinterface. This section describes what happens in which scenario for a better understanding of what the modelinterface does
 
-~~ Server gives an updated item, and _itemExists_ returns false ~~
+**Server gives an updated item, and _itemExists_ returns false**
 
 In this case the _createItem_ method is called, since the item did not exists yet at the client
 
-~~ Server gives an updated item, and _itemExists_ returns true ~~
+**Server gives an updated item, and _itemExists_ returns true**
+
 In this case the _updateItem_ method is called, since the item does already exists at the client, and some update is done to the item
 
-~~ Server gives a deleted item, and _itemExists_ returns false ~~
+**Server gives a deleted item, and _itemExists_ returns false**
+
 The Entity does not exist and both the server and the client. For the client it is just the same as if the entity never existed. Therefore, no method is called, and the deleted entity is ignored. 
 
-~~ Server gives a deleted item, and _itemExists_ returns true ~~
+**Server gives a deleted item, and _itemExists_ returns true**
+
 In this case first the _updateItem_ method is called, and then the _deleteItem_ method is called. The deleteItem method is called because the item exists at the client, and does not exist anymore on the server.
 
 The reason that the _updateItem_ method is called beforehand is because an item might need to be updated before being deleted, otherwise database constraints may be violated. To demonstrate this, take this scenario:

@@ -15,10 +15,12 @@ class Request implements Type
     protected $startId;
 
     protected $result;
+    private $settings; // Settings as set by the server
 
     // Dependency injections
     protected $guzzleInstance;
     protected $resultInstance;
+
 
     /**
      * Return a new guzzle client
@@ -134,10 +136,20 @@ class Request implements Type
      */
     private function isDeleted($item)
     {
-        return (isset($item['deleted']) && $item['deleted']) ||
-            (isset($item['deleted_at']) && !is_null($item['deleted_at']));
+        // If the server did not set a deletedAtName, stuff
+        // can not be deleted
+        if (is_null($this->settings['deletedAtName'])) {
+            return false;
+        }
+
+        // Else check if deleted at is set
+        return (
+            isset($item[$this->settings['deletedAtName']])
+            && (bool) $item[$this->settings['deletedAtName']]
+        );
                 
     }
+
     /**
      * Fetch more data
      * @param ModelInterface $model The model we have to call with data
@@ -157,6 +169,7 @@ class Request implements Type
                 if ($this->isDeleted($item)) {
                     $this->deleteItem($item);
                 }
+
             } elseif (!$this->isDeleted($item)) {
                 $model->createItem($item);
             }
@@ -172,7 +185,9 @@ class Request implements Type
         $json = $this->asJson();
         $client = $this->getGuzzle();
         $res = $client->post($this->url, ['body' => $json]);
-        return $res->json();
+        $data =$res->json();
+        $this->settings = $data['settings'];
+        return $data;
     }
 
     /**

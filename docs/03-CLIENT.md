@@ -85,7 +85,7 @@ class Model extends Eloquent implements \CodeYellow\Sync\Client\Model\ModelInter
 		$model->save();
 	}
 
-	public function udpateItem(array $data) {
+	public function updateItem(array $data) {
 		$model = $this->find($data['id']);
 		$model->set($data);
 		$model->save();

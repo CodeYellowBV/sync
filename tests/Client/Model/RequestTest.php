@@ -1,6 +1,7 @@
 <?php
 use \Mockery as m;
 use CodeYellow\Sync\Client\Model\Request;
+
 class ClientModelRequest extends PHPUnit_Framework_TestCase
 {
     /**
@@ -25,7 +26,7 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
         $this->assertEquals($options['type'], $request->getType());
     }
 
-    /** 
+    /**
      * Test if an exception is thrown if an invalidargument is set
      * @expectedException \InvalidArgumentException
      */
@@ -43,7 +44,7 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
 
     }
 
-    /** 
+    /**
      * Test if an InvalidArgumentException is thrown if a wrong type is set
      * @expectedException \InvalidArgumentException
      */
@@ -60,7 +61,7 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
         new Request('example.org', $options);
     }
 
-    /** 
+    /**
      * Test if an InvalidArgumentException is thrown if the set values are not integer
      * @expectedException \InvalidArgumentException
      */
@@ -128,7 +129,7 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test a Simple Fetch data workrs 
+     * Test a Simple Fetch data works
      */
     public function testSimpleFetchData()
     {
@@ -178,7 +179,7 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
      * @param int $id Id of the user to be added/updated
      * @param bool $itemExists Does the item exist in the database already?
      * @param bool $deleted Should the user be deleted. If null, deleted will not be set
-     * @param string $method. The method that should be called on the model 
+     * @param string $method. The method that should be called on the model
      * @dataProvider fetchDataProvider
      */
     public function testFetchData($id, $itemExists, $deleted, $method)
@@ -194,15 +195,33 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
         $resultMock = m::mock('CodeYellow\Sync\Client\Model\ResultInterface');
         $modelInterface = m::mock('CodeYellow\Sync\Client\Model\modelInterface');
 
+
         $request = new Request('example.org', $options);
         $request->setResultInstance($resultMock);
 
+        // hack to set the settings in the request
+        $a = Closure::bind(
+            function() {
+                $this->settings = [
+                    'deletedAtName' => 'deleted_at'
+                ];
+            },
+            $request,
+            'CodeYellow\Sync\Client\Model\Request'
+        );
+        $a();
+
         $result['id'] = $id;
-        !is_null($deleted) && $result['deleted'] = $deleted;
+        !is_null($deleted) && $result['deleted_at'] = $deleted;
 
         $resultMock->shouldReceive('bind')->with($request)->andReturn([$result]);
         $modelInterface->shouldReceive('itemExists')->with($id)->andReturn($itemExists);
         if ($method != null) {
+            // make sure that updateItem is always called before deleteItem
+            if ($method == 'deleteItem') {
+                $modelInterface->shouldReceive('updateItem')->with($result);
+            }
+
             $modelInterface->shouldReceive($method)->with($method == 'deleteItem' ? $result['id'] : $result);
         }
 
@@ -246,7 +265,6 @@ class ClientModelRequest extends PHPUnit_Framework_TestCase
 
         $array = $request->asArray();
 
-        $this->assertEquals($array['since'], strtotime($date));     
-
+        $this->assertEquals($array['since'], strtotime($date));
     }
 }

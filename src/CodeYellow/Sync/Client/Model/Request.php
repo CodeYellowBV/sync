@@ -15,7 +15,7 @@ class Request implements Type
     protected $startId;
 
     protected $result;
-    private $settings; // Settings as set by the server
+    protected $settings; // Settings as set by the server
 
     // Dependency injections
     protected $guzzleInstance;
@@ -167,9 +167,8 @@ class Request implements Type
                 // is done before, because the update
                 // might still be relevant
                 if ($this->isDeleted($item)) {
-                    $this->deleteItem($item);
+                    $model->deleteItem($item['id']);
                 }
-
             } elseif (!$this->isDeleted($item)) {
                 $model->createItem($item);
             }

@@ -81,8 +81,7 @@ class Result implements ResultInterface, Type
         if (isset($this->lastId) && $this->remaining == 0) {
             return false;
         }
-
-        $this->request->setFrom($this->lastTime, $this->lastId + 1);
+        $this->request->setFrom((int) $this->lastTime, $this->lastId + 1);
         $this->addData($this->request->getData());
 
         // Check if this item is set now

@@ -8,6 +8,7 @@ class Result
     private $count;
     private $remaining;
     private $data;
+    private $settings;
 
     /**
      * Create a new sync result
@@ -25,6 +26,7 @@ class Result
 
         $this->count = count($data);
         $this->remaining = max($totalRecords - $this->count, 0);
+        $this->settings = $settings;
 
         foreach ($data as &$result) {
             $result = (array) $result;
@@ -47,6 +49,7 @@ class Result
         return [
             'count' => $this->count,
             'remaining' => $this->remaining,
+            'settings' => $this->settings->asArray(),
             'data' => $this->data
         ];
     }

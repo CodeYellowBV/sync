@@ -77,4 +77,14 @@ interface SettingsInterface
      * @return array String Names of fields that are datetime
      */
     public function getTimeFields();
+
+
+    /**
+     * Returns an array representation of the settings object
+     * This is communicated to the client, so that the client
+     * also knows the current settings
+     *
+     * @return array Array representation of the settings
+     */
+    public function asArray();
 }

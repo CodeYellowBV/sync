@@ -178,4 +178,22 @@ class Settings implements Type, SettingsInterface
             $this->deletedAtName
         ];
     }
+
+    /**
+     * Returns an array representation of the settings object
+     * This is communicated to the client, so that the client
+     * also knows the current settings
+     *
+     * @return array Array representation of the settings
+     */
+    public function asArray()
+    {
+        // N.b. no timestamp information, because that
+        // is not needed for the client
+        return [
+            'createdAtName' => $this->createdAtName,
+            'updatedAtName' => $this->updatedAtName,
+            'deletedAtName' => $this->deletedAtName
+        ];
+    }
 }

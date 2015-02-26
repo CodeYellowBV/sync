@@ -12,7 +12,7 @@ class Result implements ResultInterface, Type
     private $data = array();
 
     /**
-     * Bind the result iwth a new request
+     * Bind the result with a new request
      *
      * @param Request $request The request that is done
      */
@@ -20,8 +20,7 @@ class Result implements ResultInterface, Type
     {
         $this->request = $request;
 
-        // Full of hacks!!!!
-        $this->lastId = $this->request->getOption('startId') !== null ? $this->request->getOption('startId') - 1 : null;
+        $this->lastId = $this->request->getOption('startId', 1) - 1;
         $this->lastTime = $this->request->getOption('since', 0);
         $this->remaining = 1;
 

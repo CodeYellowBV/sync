@@ -124,18 +124,26 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
             'since' => time() - 40,
             'startId' => 5
         ];
-
         $query = $this->getQuery();
         $query->shouldReceive('where')->with('created_at', '<', $request['before']);
-        $query->shouldReceive('where')->with('created_at', '>=', $request['since']);
-        $query->shouldReceive('where')->with('id', '>=', $request['startId']);
+        $query->shouldReceive('where')->with(m::on(function ($closure) use ($request) {
+            $query2 = $this->getQuery();
+            $query2->shouldReceive('where')->with('created_at', '>', $request['since']);
+            $query2->shouldReceive('orWhere')->with(m::on(function ($closure2) use ($request) {
+                $query3 = $this->getQuery();
+                $query3->shouldReceive('where')->with('created_at', '=', $request['since']);
+                $query3->shouldReceive('where')->with('id', '>=', $request['startId']);
+                $closure2($query3);
+                return true;
+            }));
+            $closure($query2);
+            return true;
+        }));
         $query->shouldReceive('aggregate')->with('count')->andReturn($count);
         $query->shouldReceive('orderBy')->with('created_at', 'ASC');
         $query->shouldReceive('orderBy')->with('id', 'ASC');
         $query->shouldReceive('limit')->with($request['limit']);
-
         $query->shouldReceive('get')->andReturn(array('test'));
-
         $req = new Request(json_encode($request));
         $result = $req->doSync($query, new Settings(
             Settings::FORMAT_TIMESTAMP
@@ -145,6 +153,7 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
 
     /**
      * Test if updated_at is selected if the request has set updated_at
+     * @group test
      */
     public function testUpdatedAt()
     {
@@ -155,17 +164,16 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
             'since' => time() - 40,
             'startId' => 5
         ];
-
         $query = $this->getQuery();
         $query->shouldReceive('where')->with('updated_at', '<', $request['before']);
-        $query->shouldReceive('where')->with('updated_at', '>=', $request['since']);
-        $query->shouldReceive('where')->with('id', '>=', $request['startId']);
+        $query->shouldReceive('where')->with(m::on(function ($closure) {
+            return $closure instanceof Closure;
+        }));
         $query->shouldReceive('aggregate')->with('count')->andReturn(1);
         $query->shouldReceive('orderBy')->with('updated_at', 'ASC');
         $query->shouldReceive('orderBy')->with('id', 'ASC');
         $query->shouldReceive('get')->andReturn(array('test'));
         $query->shouldReceive('limit');
-
         $req = new Request(json_encode($request));
         $result = $req->doSync($query, new Settings(
             Settings::FORMAT_TIMESTAMP

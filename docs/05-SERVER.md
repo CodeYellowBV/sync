@@ -18,6 +18,8 @@ In a second parameter the settings object needs to be set. The settings object i
 
 As an additional third parameter the maximum batch size can be given. The actual batch size will be determined by the minimum of the server provided maximum batch size, the client provided maximum batch size and the actual amount of records that need to be synced. When the maximum batch size is not given by the server, then the given maximum batch size from the client is used. This may cause the server to use a lot of resources! Therefore it is wise to set a batch size. Furthermore, setting the batch size too low will cause the client to have to make a lot of request.
 
+As an additional fourth parameter a transformer can be given. A transformer should inherit the transformerInterface. This transformer gets the complete dataset, and the server is able to transform this data before it is send to the user. 
+
 ### Example Code
 ```
 $rawRequest = file_get_contents('php://input');

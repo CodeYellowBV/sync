@@ -15,7 +15,7 @@ class Result
      *
      * @param array $data The data to sync
      * @param int $totalRecords How many records are there in total (remaining + data)
-     * @param TransformerInterface $transformer Transformer that transforms the dataset
+     * @param TransformInterface $transformer Transformer that transforms the dataset
      */
     public function __construct(
         array $data,

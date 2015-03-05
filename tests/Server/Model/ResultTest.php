@@ -72,7 +72,7 @@ class ServerModelResultTest extends PHPUnit_Framework_TestCase
     public function testTransformer()
     {
         $settings = new Settings();
-        $transformer = m::mock('CodeYellow\\Sync\\Server\\ModelTransformerInterface');
+        $transformer = m::mock('CodeYellow\\Sync\\Server\\ModelTransformInterface');
         $data = [
             'a' => [1, 2, 3],
             'b' => [4, 5, 6],

@@ -12,7 +12,12 @@ class ServerModelResultTest extends PHPUnit_Framework_TestCase
      */
     public function testTotalRecordsNoInteger()
     {
-        new Result(array(), 'no integer', new Settings());
+        new Result(
+            array(),
+            'no integer',
+            new Settings(),
+            null
+        );
     }
 
     /**
@@ -23,7 +28,12 @@ class ServerModelResultTest extends PHPUnit_Framework_TestCase
         $data = array(['a' => 'test', 'b', 'test']);
         $totalRecords = 100;
 
-        $result = new Result($data, $totalRecords, new Settings());
+        $result = new Result(
+            $data,
+            $totalRecords,
+            new Settings(),
+            null
+        );
         foreach ([$result->asArray(), json_decode($result->asJson(), true)] as $array) {
             $this->assertTrue(is_array($array));
             $this->assertEquals(count($data), $array['count']);
@@ -44,7 +54,12 @@ class ServerModelResultTest extends PHPUnit_Framework_TestCase
             'updated_at' => $updatedAt,
             'test' => $createdAt
         ]);
-        $result = new Result($data, 1, new Settings());
+        $result = new Result(
+            $data,
+            1,
+            new Settings(),
+            null
+        );
         $data = $result->asArray()['data'][0];
         // Test should not be converted to datetime
         $this->assertEquals($createdAt, $data['test']);
@@ -52,5 +67,26 @@ class ServerModelResultTest extends PHPUnit_Framework_TestCase
         // Created at and updated at should be converted
         $this->assertEquals(strtotime($createdAt), $data['created_at']);
         $this->assertEquals(strtotime($updatedAt), $data['updated_at']);
+    }
+
+    public function testTransformer()
+    {
+        $settings = new Settings();
+        $transformer = m::mock('CodeYellow\\Sync\\Server\\ModelTransformerInterface');
+        $data = [
+            'a' => [1, 2, 3],
+            'b' => [4, 5, 6],
+            'c' => [7, 8, 9]
+        ];
+
+        $transformer->shouldReceive('transform')->with($data);
+
+        $result = new Result(
+            $data,
+            count($data),
+            $settings,
+            $transformer
+        );
+
     }
 }

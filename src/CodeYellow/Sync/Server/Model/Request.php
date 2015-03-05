@@ -87,12 +87,16 @@ class Request implements Type
      *
      * Use $eloquent->getQuery() to get the query from eloquent
      * @param Illuminate\Database\Query\Builder $query The prepared query without
+     * @param SettingsInterface $settings Settings for this request
+     * @param TransformerInterface $transformer Transformer to be applied to the dataset before
+     * the data is returned to the user
      * @param int $limit The limit for how many results may be exported. If null, use user limit
      */
     public function doSync(
         \Illuminate\Database\Query\Builder $query,
         SettingsInterface $settings,
-        $limit = null
+        $limit = null,
+        TransformerInterface $transformer = null
     ) {
         if (!is_int($limit) && !is_null($limit)) {
             throw new \InvalidArgumentException('SyncRequest::doSync limit must be an integer');
@@ -124,7 +128,7 @@ class Request implements Type
             $limit == null && $limit = $this->limit;
             $query->limit(min($this->limit, $limit));
         }
-        $this->result = new Result($query->get(), $count, $settings);
+        $this->result = new Result($query->get(), $count, $settings, $transformer);
         return $this->result;
     }
 

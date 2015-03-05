@@ -12,13 +12,16 @@ class Result
 
     /**
      * Create a new sync result
+     *
      * @param array $data The data to sync
      * @param int $totalRecords How many records are there in total (remaining + data)
+     * @param TransformerInterface $transformer Transformer that transforms the dataset
      */
     public function __construct(
         array $data,
         $totalRecords,
-        SettingsInterface $settings
+        SettingsInterface $settings,
+        $transformer
     ) {
         if ('' . (int)$totalRecords != $totalRecords) {
             throw new \InvalidArgumentException('syncResult: totalRecords must be an integer');
@@ -35,6 +38,11 @@ class Result
                     $result[$time] = $settings->toUnixTime($result[$time]);
                 }
             }
+        }
+
+
+        if (!is_null($transformer)) {
+            $transformer->transform($data);
         }
 
         $this->data = $data;

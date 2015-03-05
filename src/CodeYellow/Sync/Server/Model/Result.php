@@ -27,6 +27,10 @@ class Result
             throw new \InvalidArgumentException('syncResult: totalRecords must be an integer');
         }
 
+        if (!is_null($transformer) && ! ($transformer instanceof TransformInterface)) {
+            throw new \InvalidArgumentException('syncResult: Transformer must inherit TransformInterface');
+        }
+
         $this->count = count($data);
         $this->remaining = max($totalRecords - $this->count, 0);
         $this->settings = $settings;

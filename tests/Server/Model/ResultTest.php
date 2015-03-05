@@ -69,10 +69,13 @@ class ServerModelResultTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(strtotime($updatedAt), $data['updated_at']);
     }
 
+    /**
+     * Tests if the transformer is fed the correct data
+     */
     public function testTransformer()
     {
         $settings = new Settings();
-        $transformer = m::mock('CodeYellow\\Sync\\Server\\ModelTransformInterface');
+        $transformer = m::mock('\\CodeYellow\\Sync\\Server\\Model\\TransformInterface');
         $data = [
             'a' => [1, 2, 3],
             'b' => [4, 5, 6],
@@ -87,6 +90,31 @@ class ServerModelResultTest extends PHPUnit_Framework_TestCase
             $settings,
             $transformer
         );
+    }
 
+    /**
+     * Test if the response cries if a wrong interface is given for
+     * the transformer
+     *
+     * @expectedException \InvalidArgumentException
+     */
+    public function testTransformerWrongInterfaceException()
+    {
+        $settings = new Settings();
+
+        // Note: this is the wrong interface
+        $transformer = m::mock('CodeYellow\\Sync\\Server\\Model\\TransformerInterface');
+        $data = [
+            'a' => [1, 2, 3],
+            'b' => [4, 5, 6],
+            'c' => [7, 8, 9]
+        ];
+
+        $result = new Result(
+            $data,
+            count($data),
+            $settings,
+            $transformer
+        );
     }
 }

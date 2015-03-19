@@ -16,7 +16,7 @@
     ],
     "require": {
         "php": ">=5.3.3",
-        "guzzlehttp/guzzle": "4.2.1"
+        "guzzlehttp/guzzle": ">=4.1.0"
     },
     "require-dev": {
         "illuminate/database": "4.2.*",

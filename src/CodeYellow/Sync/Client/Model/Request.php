@@ -192,8 +192,8 @@ class Request implements Type
         $this->log('info', 'send request:' . $json);
         $res = $client->post($this->url, ['body' => $json]);
         $data =$res->json();
-        $this->log('debug', 'answer:' . $res);
         $this->settings = $data['settings'];
+        $this->log('debug', 'answer:' . json_encode($data));
         return $data;
     }
 

@@ -22,6 +22,7 @@ class Request implements Type
     protected $resultInstance;
 
 
+
     /**
      * Return a new guzzle client
      * @param \GuzzleHttp\Client $client
@@ -56,6 +57,8 @@ class Request implements Type
     {
         return $this->resultInstance;
     }
+
+
 
     /**
      * Construct a new request

@@ -13,7 +13,7 @@ trait Logger
      * @param LoggerInterface $logger
      * @return null
      */
-    public function setLogger(Psr\Log\LoggerInterface $logger)
+    public function setLogger(\Psr\Log\LoggerInterface $logger)
     {
         $this->loggerInstance = $logger;
     }
@@ -30,7 +30,7 @@ trait Logger
     public function log($level, $message, $context = array())
     {
         // If a logger instance is set, log the message
-        if (!is_null($loggerInstance)) {
+        if (!is_null($this->loggerInstance)) {
             // prefix with an indicator that it are our logss
             $message  = 'CodeYellow\Sync: ' . $message;
             $this->loggerInstance->log($level, $message, $context);

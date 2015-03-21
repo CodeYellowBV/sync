@@ -17,6 +17,15 @@ trait Logger
     {
         $this->loggerInstance = $logger;
     }
+
+    /**
+     * Get the used logger instance
+     * @return LoggerInterface $logger
+     */
+    public function getLogger()
+    {
+        return $this->loggerInstance;
+    }
     
     /**
      * Checks if a logger is available else

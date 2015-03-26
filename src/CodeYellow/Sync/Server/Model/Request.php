@@ -16,6 +16,8 @@ namespace CodeYellow\Sync\Server\Model;
 use CodeYellow\Sync\Type;
 use CodeYellow\Sync\Exception;
 use CodeYellow\Sync\Server\Model\SettingsInterface;
+use CodeYellow\Sync\Logger\Logger;
+use Psr\Log\LogLevel;
 
 /**
  * Server\Model\Request class, handles request that are received
@@ -26,9 +28,10 @@ use CodeYellow\Sync\Server\Model\SettingsInterface;
  * @license  MIT Licence http://opensource.org/licenses/MIT
  * @link     https://github.com/codeyellowbv/sync
  */
-
 class Request implements Type
 {
+    use Logger;
+
     private $type;
     private $limit;
     private $before;
@@ -36,6 +39,7 @@ class Request implements Type
     private $startId;
 
     private $result; // The result of this query
+    private $json; // Raw request. Stored for debugging
 
     /**
      * Create a sync. Sets ths json
@@ -48,6 +52,7 @@ class Request implements Type
      */
     public function __construct($json)
     {
+        $this->json = $json;
         $this->readJson($json);
     }
 
@@ -101,6 +106,7 @@ class Request implements Type
         if (!is_int($limit) && !is_null($limit)) {
             throw new \InvalidArgumentException('SyncRequest::doSync limit must be an integer');
         }
+        $this->log(LogLevel::INFO, 'Start sync with request ' . $this->json);
 
         // Set an upperbound for the timestamp, to make sure that edits that
         // are made this second are not lost
@@ -129,6 +135,7 @@ class Request implements Type
             $query->limit(min($this->limit, $limit));
         }
         $this->result = new Result($query->get(), $count, $settings, $transformer);
+        $this->log(LogLevel::DEBUG, 'Result ' .$this->result->asJson());
         return $this->result;
     }
 

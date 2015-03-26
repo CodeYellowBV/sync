@@ -2,9 +2,12 @@
 namespace CodeYellow\Sync\Client\Model;
 
 use CodeYellow\Sync\Type;
+use CodeYellow\Sync\Logger\Logger;
 
 class Request implements Type
 {
+    use Logger;
+
     protected $options = ['type', 'limit', 'before', 'since','startId'];
     protected $url;
     
@@ -20,6 +23,7 @@ class Request implements Type
     // Dependency injections
     protected $guzzleInstance;
     protected $resultInstance;
+
 
 
     /**
@@ -56,6 +60,8 @@ class Request implements Type
     {
         return $this->resultInstance;
     }
+
+
 
     /**
      * Construct a new request
@@ -183,9 +189,11 @@ class Request implements Type
     {
         $json = $this->asJson();
         $client = $this->getGuzzle();
+        $this->log('info', 'send request:' . $json);
         $res = $client->post($this->url, ['body' => $json]);
         $data =$res->json();
         $this->settings = $data['settings'];
+        $this->log('debug', 'answer:' . json_encode($data));
         return $data;
     }
 

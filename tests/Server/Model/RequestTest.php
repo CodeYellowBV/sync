@@ -2,9 +2,10 @@
 use CodeYellow\Sync\Server\Model\Request;
 use CodeYellow\Sync\Server\Model\Settings;
 use \Mockery as m;
+
 class ServerModelRequestTest extends PHPUnit_Framework_TestCase
 {
-    static $database;
+    static private $database;
 
     public function getQuery()
     {
@@ -94,7 +95,7 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Tests if an invalid argument exception is given if 
+     * Tests if an invalid argument exception is given if
      * @expectedException InvalidArgumentException
      */
     public function testDoSyncInvalid()
@@ -275,5 +276,57 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
             Settings::FORMAT_TIMESTAMP
         ), $clientLimit);
         $this->assertInstanceOf('CodeYellow\Sync\Server\Model\Result', $result);
+    }
+
+    /**
+     * Tests if setting a logger works correctly
+     * @group log
+     */
+    public function testLogger()
+    {
+        $request = [
+            'type' => Request::TYPE_MODIFIED,
+            'limit' => 10,
+            'before' => time(),
+            'since' => null,
+            'startId' => 5
+        ];
+
+        $json = json_encode($request);
+
+        $query = $this->getQuery();
+        $query->shouldReceive('where');
+        $query->shouldReceive('aggregate')->andReturn(1);
+        $query->shouldReceive('orderBy');
+        $query->shouldReceive('orderBy');
+        $query->shouldReceive('get')->andReturn([]);
+        $query->shouldReceive('limit');
+
+
+        $req = new Request($json);
+
+        // The request should be logged with the request json as message
+        $logger = m::mock('\Psr\Log\LoggerInterface');
+        $logger->shouldReceive('log')->with('info', m::on(function($message) use ($json) {
+            $this->assertTrue(strpos($message, $json) >= 0);
+            return true;
+        }), []);
+
+        // The result should be logged as debug. Save the message to check that the
+        // result json is in the message
+        $logMessage = '';
+        $logger->shouldReceive('log')->with('debug', m::on(function($message) use (&$logMessage) {
+            $logMessage = $message;
+            return true;
+        }), []);
+
+
+        $req->setLogger($logger);
+        $result = $req->doSync($query, new Settings(
+            Settings::FORMAT_TIMESTAMP
+        ), null);
+
+        // Assert the provided log message containted the result
+        $this->assertTrue(strpos($logMessage, $result->asJson()) >= 0);
     }
 }

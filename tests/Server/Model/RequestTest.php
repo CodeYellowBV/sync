@@ -329,4 +329,63 @@ class ServerModelRequestTest extends PHPUnit_Framework_TestCase
         // Assert the provided log message containted the result
         $this->assertTrue(strpos($logMessage, $result->asJson()) >= 0);
     }
+
+    /**
+     * Test that the grace period works correctly
+     */
+    public function testGracePeriod()
+    {
+        $count = 42;
+        $graceTime = 5;
+        $request = [
+            'type' => Request::TYPE_NEW,
+            'limit' => 10,
+            'before' => time(),
+            'since' => time(),
+            'startId' => 5
+        ];
+
+
+        $query = $this->getQuery();
+        $query->shouldReceive('where')->with('created_at', '<', m::on(function ($unixTime) use ($request, $graceTime) {
+            // At least the grace time is applied
+            $this->assertLessThanOrEqual(time() - $graceTime, $unixTime);
+
+            // upper bound for what the grace time can be at maximum
+            $this->assertGreaterThanOrEqual($request['before'] - $graceTime, $unixTime);
+            return true;
+        }));
+
+
+        $query->shouldReceive('where')->with(m::on(function ($closure) use ($request) {
+            $query2 = $this->getQuery();
+            $query2->shouldReceive('where')->with('created_at', '>', $request['since']);
+            $query2->shouldReceive('orWhere')->with(m::on(function ($closure2) use ($request) {
+                $query3 = $this->getQuery();
+                $query3->shouldReceive('where')->with('created_at', '=', $request['since']);
+                $query3->shouldReceive('where')->with('id', '>=', $request['startId']);
+                $closure2($query3);
+                return true;
+            }));
+            $closure($query2);
+            return true;
+        }));
+
+
+        $query->shouldReceive('aggregate')->with('count')->andReturn($count);
+        $query->shouldReceive('orderBy')->with('created_at', 'ASC');
+        $query->shouldReceive('orderBy')->with('id', 'ASC');
+        $query->shouldReceive('limit')->with($request['limit']);
+        $query->shouldReceive('get')->andReturn(array('test'));
+
+
+        $req = new Request(json_encode($request));
+        $result = $req->doSync($query, new Settings(
+            Settings::FORMAT_TIMESTAMP,
+            'created_at',
+            'updated_at',
+            'deleted_at',
+            $graceTime
+        ));
+    }
 }

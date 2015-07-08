@@ -7,11 +7,31 @@ class Settings implements Type, SettingsInterface
 {
     const FORMAT_TIMESTAMP = 'timestamp';
     const FORMAT_DATETIME = 'datetime';
-    
+
+    /**
+     * @var ENUM Are the times in unix timestamp format, or in datetime format
+     */
     protected $timeFormat;
+
+    /**
+     * @var string Name for the created at field
+     */
     protected $createdAtName;
+
+    /**
+     * @var string Name for the updated at field
+     */
     protected $updatedAtName;
+
+    /**
+     * @var string Name for the deleted at field
+     */
     protected $deletedAtName;
+
+    /**
+     * @var integer Additional grace time needed.
+     */
+    protected $grace;
 
     /**
      * Create a new settings class
@@ -19,12 +39,15 @@ class Settings implements Type, SettingsInterface
      * @param ENUM $timeFormat Timeformat either FORMAT_TIMESTAMP or FORMAT_DATETIME
      * @param string $createdAtName The column name for the created_at attribute
      * @param string $updatedAtName The column name for the updated_at attribute
+     * @param string $deletedAtName The column name for the deleted_at attribute
+     * @param integer $grace The additional grace time
      */
     public function __construct(
         $timeFormat = null,
         $createdAtName = 'created_at',
         $updatedAtName = 'updated_at',
-        $deletedAtName = 'deleted_at'
+        $deletedAtName = 'deleted_at',
+        $grace = 0
     ) {
         if (is_null($timeFormat)) {
             $timeFormat = static::FORMAT_DATETIME;
@@ -42,6 +65,7 @@ class Settings implements Type, SettingsInterface
         $this->createdAtName = $createdAtName;
         $this->updatedAtName = $updatedAtName;
         $this->deletedAtName = $deletedAtName;
+        $this->grace = $grace;
     }
 
     /**
@@ -116,10 +140,13 @@ class Settings implements Type, SettingsInterface
         $mode,
         $time
     ) {
+        $time = $this->fromUnixTime($time);
+        $time = min($time, time() - $this->grace);
+
         $query->where(
             $this->getColumnName($mode),
             '<',
-            $this->fromUnixTime($time)
+            $time
         );
     }
 

@@ -15,6 +15,7 @@ class Result implements ResultInterface, Type
      * Bind the result with a new request
      *
      * @param Request $request The request that is done
+     * @return Result Self
      */
     public function bind(Request $request)
     {

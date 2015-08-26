@@ -41,7 +41,7 @@ class Settings implements Type, SettingsInterface
         $this->timeFormat = $timeFormat;
         $this->createdAtName = $createdAtName;
         $this->updatedAtName = $updatedAtName;
-        $this->deletedAt = $deletedAtName;
+        $this->deletedAtName = $deletedAtName;
     }
 
     /**

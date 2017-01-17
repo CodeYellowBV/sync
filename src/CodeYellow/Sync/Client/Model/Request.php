@@ -10,7 +10,7 @@ class Request implements Type
 
     protected $options = ['type', 'limit', 'before', 'since','startId'];
     protected $url;
-    
+
     protected $type;
     protected $limit;
     protected $before;
@@ -153,7 +153,7 @@ class Request implements Type
             isset($item[$this->settings['deletedAtName']])
             && (bool) $item[$this->settings['deletedAtName']]
         );
-                
+
     }
 
     /**
@@ -191,7 +191,10 @@ class Request implements Type
         $client = $this->getGuzzle();
         $this->log('info', 'send request:' . $json);
         $res = $client->post($this->url, ['body' => $json]);
-        $data =$res->json();
+
+        $data = json_decode($res->getBody()->getContents(), true);
+
+
         $this->settings = $data['settings'];
         $this->log('debug', 'answer:' . json_encode($data));
         return $data;

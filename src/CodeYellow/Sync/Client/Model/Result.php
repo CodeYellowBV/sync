@@ -36,6 +36,11 @@ class Result implements ResultInterface, Type
     {
         $this->count += $result['count'];
         $this->remaining = $result['remaining'];
+
+        if (!is_array($result['data'])) {
+            throw new \Exception("Did not get data in the correct format. Are you sure you have the correct url? And that you are logged in?");
+        }
+
         $this->data = array_merge($this->data, $result['data']);
     }
 

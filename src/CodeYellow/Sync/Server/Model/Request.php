@@ -134,7 +134,7 @@ class Request implements Type
             $limit == null && $limit = $this->limit;
             $query->limit(min($this->limit, $limit));
         }
-        $this->result = new Result($query->get(), $count, $settings, $transformer);
+        $this->result = new Result($query->get()->toArray(), $count, $settings, $transformer);
         $this->log(LogLevel::DEBUG, 'Result ' .$this->result->asJson());
         return $this->result;
     }
